@@ -12,6 +12,8 @@
     <OutputPath>.</OutputPath>
     <Name>HGR_CNN</Name>
     <RootNamespace>HGR_CNN</RootNamespace>
+    <InterpreterId>{147bd31f-25eb-4fd7-88c0-f9fa5ede71cc}</InterpreterId>
+    <InterpreterVersion>3.5</InterpreterVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <DebugSymbols>true</DebugSymbols>
@@ -23,6 +25,9 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="HGR_CNN.py" />
+  </ItemGroup>
+  <ItemGroup>
+    <InterpreterReference Include="{147bd31f-25eb-4fd7-88c0-f9fa5ede71cc}\3.5" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
