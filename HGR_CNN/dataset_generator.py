@@ -9,11 +9,12 @@ from datetime import datetime
 
 
 class DatasetGenerator:
-    def __init__(self, dataset_path, camera_img_size, dataset_img_size):
+    def __init__(self, record_when_no_hand, dataset_path, camera_img_size, dataset_img_size, depth_max):
         self.dataset_path = dataset_path
         self.camera_img_size = camera_img_size
         self.dataset_img_size = dataset_img_size
-        self.depth_max_calibration = float(1000) # millimeters
+        self.depth_max_calibration = depth_max
+        self.record_when_no_hand = record_when_no_hand
         self.img_counter = 0 
 
     def get_img_name(self, img_counter, tip_pos, is_hand_detected, gesture):
@@ -40,10 +41,12 @@ class DatasetGenerator:
         full_data_img = self.create_rgbd_img(color_image, depth_image)
         resized_img = cv2.resize(full_data_img, self.dataset_img_size).astype(np.float32)
         index_tip_pos, is_hand_detected = simple_recognizer.recognize_finger_tip(color_image, depth_image)
-        img_name = self.get_img_name(self.img_counter, index_tip_pos, is_hand_detected, current_gesture)
-        img_path = os.path.join(self.dataset_path, img_name)
-        cv2.imwrite(img_path, resized_img)
-        self.img_counter += 1
+        
+        if self.record_when_no_hand or is_hand_detected:
+            img_name = self.get_img_name(self.img_counter, index_tip_pos, is_hand_detected, current_gesture)
+            img_path = os.path.join(self.dataset_path, img_name)
+            cv2.imwrite(img_path, resized_img)
+            self.img_counter += 1
         return index_tip_pos, is_hand_detected
         
     def record_data(self, current_gesture):
@@ -78,8 +81,6 @@ class DatasetGenerator:
                 # Apply colormap on depth image (image must be converted to
                 # 8-bit per pixel first)
                 depth_colormap = cv2.applyColorMap(cv2.convertScaleAbs(depth_image, alpha=0.03), cv2.COLORMAP_JET)
-
-                #cv2.namedWindow(window_name, cv2.WINDOW_AUTOSIZE)
 
                 # Stack both images horizontally
                 user_img = np.hstack((color_image, depth_colormap))

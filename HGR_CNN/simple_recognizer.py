@@ -37,7 +37,7 @@ def recognize_finger_tip(color_image, depth_image):
             z_heights = []
             for point in blob:
                 point_a = point[0]
-                z_heights.append(depth_image[point_a[0], point_a[1]])
+                z_heights.append(depth_image[point_a[1], point_a[0]])
             z = int(np.round(np.mean(z_heights),0))
 
             return (center[0],center[1],z), True
