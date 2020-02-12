@@ -41,7 +41,7 @@ if __name__ == "__main__":
 
     if (sys.argv[1] == record_command):
         print("Dataset recording...")
-        recorder = gen.DatasetGenerator(dataset_dir, img_camera_size, img_camera_size)
+        recorder = gen.DatasetGenerator(dataset_dir, img_camera_size, img_dataset_size)
         recorder.record_data(datatypes.Gesture.POINTING)
         sys.exit(0)
 

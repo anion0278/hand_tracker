@@ -1,6 +1,8 @@
 import cv2
 import numpy as np
 
+min_blob_size = 50
+
 def recognize_finger_tip(color_image, depth_image):
     
     #green tape
@@ -23,8 +25,8 @@ def recognize_finger_tip(color_image, depth_image):
         else:
             blob = max(contours, key=lambda el: cv2.contourArea(el))
                 
-            #minRect = cv2.minAreaRect(blob)
-            if len(blob) < 70:
+            #minRect = cv2.minAreaRect(blob) # TODO check block coverage area
+            if len(blob) < min_blob_size:
                 return (0,0,0), False
 
             M = cv2.moments(blob)
@@ -34,9 +36,9 @@ def recognize_finger_tip(color_image, depth_image):
             for point in blob:
                 point_a = point[0]
                 z_heights.append(depth_image[point_a[0], point_a[1]])
-            Z = np.round(np.mean(z_heights),0)
+            z = int(np.round(np.mean(z_heights),0))
 
-            return (center[0],center[1],Z), True
+            return (center[0],center[1],z), True
     
     except Exception as ex:
         print('No blob detected')
