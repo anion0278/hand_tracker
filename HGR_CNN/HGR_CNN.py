@@ -14,10 +14,6 @@ def __init__(self, img_rate, img_size):
     self.img_size = img_size
     self.img_rate = img_rate
 
-def camera_matrix(intrinsics):
-    return np.array([[intrinsics.fx,             0, intrinsics.ppx],
-                     [            0, intrinsics.fy, intrinsics.ppy],
-                     [            0,             0,              1]])
 
 try:
     pipeline = rs.pipeline()
@@ -30,10 +26,11 @@ try:
  
     align_to = rs.stream.color
     align = rs.align(align_to)
+    
     while True:
-        
+       
         cv2.namedWindow('RealSense', cv2.WINDOW_AUTOSIZE)
-        cv2.namedWindow('mask', cv2.WINDOW_AUTOSIZE)
+        
         frames = pipeline.wait_for_frames()
         aligned_frames = align.process(frames)
 
@@ -43,14 +40,13 @@ try:
 
         depth_image = np.asanyarray(depth.get_data())
         color_image = np.asanyarray(color.get_data())
-
         gray = cv2.cvtColor(color_image, cv2.COLOR_BGR2GRAY)        
         
         #BLOB detection
       
         mask = cv2.inRange(color_image, lower, upper)
         cv2.imshow('mask', mask)
-
+        
         contours, hierarchy = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
         if len(contours)>0:
             blob = max(contours, key=lambda el: cv2.contourArea(el))
@@ -88,7 +84,3 @@ finally:
     # Stop streaming
     pipeline.stop()
 
-if __name__ == "__main__":
-
-    #sys.argv = [sys.argv[0], "record"]
-    print(sys.argv) 

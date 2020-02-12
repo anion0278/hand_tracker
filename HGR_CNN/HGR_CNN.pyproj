@@ -24,7 +24,12 @@
     <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="cnn_model.py" />
+    <Compile Include="dataset_generator.py" />
+    <Compile Include="datatypes.py" />
     <Compile Include="HGR_CNN.py" />
+    <Compile Include="image_data_loader.py" />
+    <Compile Include="simple_recognizer.py" />
   </ItemGroup>
   <ItemGroup>
     <InterpreterReference Include="{147bd31f-25eb-4fd7-88c0-f9fa5ede71cc}\3.5" />
