@@ -39,7 +39,7 @@ class DatasetGenerator:
     def create_and_save_dataset_img(self, color_image, depth_image, current_gesture):
         full_data_img = self.create_rgbd_img(color_image, depth_image)
         resized_img = cv2.resize(full_data_img, self.dataset_img_size).astype(np.float32)
-        index_tip_pos, is_hand_detected = simple_recognizer.recognize_finger_tip(color_image)
+        index_tip_pos, is_hand_detected = simple_recognizer.recognize_finger_tip(color_image, depth_image)
         img_name = self.get_img_name(self.img_counter, index_tip_pos, is_hand_detected, current_gesture)
         img_path = os.path.join(self.dataset_path, img_name)
         cv2.imwrite(img_path, resized_img)
