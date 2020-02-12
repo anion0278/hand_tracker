@@ -7,14 +7,12 @@ import simple_recognizer
 import sys
 from datetime import datetime
 
-current_script_path = os.path.dirname(os.path.realpath(__file__))
-dataset_path = os.path.join(current_script_path, "dataset")
 
-img_size = (640, 480) # TODO add change of size ?
 class DatasetGenerator:
-    def __init__(self, dataset_path, camera_img_size):
+    def __init__(self, dataset_path, camera_img_size, dataset_img_size):
         self.dataset_path = dataset_path
         self.camera_img_size = camera_img_size
+        self.dataset_img_size = dataset_img_size
         self.depth_max_calibration = float(1000) # millimeters
         self.img_counter = 0 
 
@@ -23,7 +21,8 @@ class DatasetGenerator:
             tip_pos = (0,0,0)
             gesture = datatypes.Gesture.UNDEFINED
         timestamp = datetime.now().strftime("%m-%d-%Y_%H#%M#%S")
-        return f"rgbd_{img_counter}_X{tip_pos[0]}_Y{tip_pos[1]}_Z{tip_pos[2]}_hand{is_hand_detected}_gest{gesture.value}_date{timestamp}.png"
+        is_hand_detected_binary = int(is_hand_detected * 1)
+        return f"rgbd_{img_counter}_X{tip_pos[0]}_Y{tip_pos[1]}_Z{tip_pos[2]}_hand{is_hand_detected_binary}_gest{gesture.value}_date{timestamp}.png"
 
     def overlay_text_on_img(self, image, text, y_pos):
         font = cv2.FONT_HERSHEY_SIMPLEX
@@ -39,10 +38,11 @@ class DatasetGenerator:
 
     def create_and_save_dataset_img(self, color_image, depth_image, current_gesture):
         full_data_img = self.create_rgbd_img(color_image, depth_image)
+        resized_img = cv2.resize(full_data_img, self.dataset_img_size).astype(np.float32)
         index_tip_pos, is_hand_detected = simple_recognizer.recognize_finger_tip(color_image)
         img_name = self.get_img_name(self.img_counter, index_tip_pos, is_hand_detected, current_gesture)
         img_path = os.path.join(self.dataset_path, img_name)
-        cv2.imwrite(img_path, full_data_img)
+        cv2.imwrite(img_path, resized_img)
         self.img_counter += 1
         return index_tip_pos, is_hand_detected
         
@@ -51,8 +51,8 @@ class DatasetGenerator:
         pipeline = rs.pipeline()
         config = rs.config()
         image_rate = 30
-        config.enable_stream(rs.stream.depth, img_size[0], img_size[1], rs.format.z16, image_rate)
-        config.enable_stream(rs.stream.color, img_size[0], img_size[1], rs.format.bgr8, image_rate)
+        config.enable_stream(rs.stream.depth, self.camera_img_size[0], self.camera_img_size[1], rs.format.z16, image_rate)
+        config.enable_stream(rs.stream.color, self.camera_img_size[0], self.camera_img_size[1], rs.format.bgr8, image_rate)
 
         pipeline.start(config)
 
@@ -83,26 +83,26 @@ class DatasetGenerator:
 
                 # Stack both images horizontally
                 user_img = np.hstack((color_image, depth_colormap))
-                self.overlay_text_on_img(user_img, "Depth median: %s" % np.median(depth_image), y_pos = 50)       
-                self.overlay_text_on_img(user_img, "Recorder gesture: %s" % current_gesture.name, y_pos = 80)       
-                self.overlay_text_on_img(user_img, "Press ESC to close...", y_pos = 450)   
-                    
+
                 index_tip_pos, is_hand_detected = self.create_and_save_dataset_img(color_image, depth_image, current_gesture)
                 if is_hand_detected: 
                     self.overlay_circle_on_img(user_img, index_tip_pos)
 
+                self.overlay_text_on_img(user_img, "Tip position: %s" % str(index_tip_pos), y_pos = 50)       
+                self.overlay_text_on_img(user_img, "Recorder gesture: %s" % current_gesture.name, y_pos = 80)       
+                self.overlay_text_on_img(user_img, "Press ESC to close...", y_pos = 450)   
                 cv2.imshow('RealSense', user_img)
 
                 key = cv2.waitKey(1)
         finally:
-            cv2.destroyWindow(window_name)
             pipeline.stop()
+            cv2.destroyWindow(window_name)
 
 
-if __name__ == "__main__":
+#if __name__ == "__main__":
 
-    #sys.argv = [sys.argv[0], "record"]
-    print(sys.argv) 
+#    #sys.argv = [sys.argv[0], "record"]
+#    print(sys.argv) 
     
-    recorder = DatasetGenerator(dataset_path, img_size)
-    recorder.record_data(datatypes.Gesture.POINTING)
+#    recorder = DatasetGenerator(dataset_dir, img_size)
+#    recorder.record_data(datatypes.Gesture.POINTING)

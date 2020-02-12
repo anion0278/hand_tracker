@@ -1,50 +1,54 @@
 import cv2
+import os
+import sys
 import pyrealsense2 as rs
 import numpy as np
+import datatypes
+import image_data_loader as loader
+import dataset_generator as gen
+import cnn_model 
+from time import time
 
-#dictionary = cv2.aruco.getPredefinedDictionary(cv2.aruco.DICT_4X4_50)
+record_command = "record"
+train_command = "train"
+prediction_command = "online_prection"
 
-try:
-    pipeline = rs.pipeline()
-    config = rs.config()
+current_script_path = os.path.dirname(os.path.realpath(__file__))
+current_logs_dir = os.path.join(current_script_path, "logs", format(time()))
+dataset_dir = os.path.join(current_script_path, "dataset")
 
-    config.enable_stream(rs.stream.depth, 1280, 720, rs.format.z16, 30)
-    config.enable_stream(rs.stream.color, 1280, 720, rs.format.bgr8, 30)
+img_camera_size = (640, 480) 
+img_dataset_size = (160, 120)
 
-    pipeline.start(config)
- 
-    align_to = rs.stream.color
-    align = rs.align(align_to)
-    while True:
-        frames = pipeline.wait_for_frames()
-        aligned_frames = align.process(frames)
+filters_count = 32
+learning_rate = 0.0001
+batch_size = 64
+epochs_count = 50
+test_data_ratio = 0.2
 
-        depth = aligned_frames.get_depth_frame()
-        color = aligned_frames.get_color_frame()
-        if not depth or not color: continue
+if __name__ == "__main__":
 
-        depth_image = np.asanyarray(depth.get_data())
-        color_image = np.asanyarray(color.get_data())
+    sys.argv = [sys.argv[0], record_command]
+    #sys.argv = [sys.argv[0], train_command]
+    #sys.argv = [sys.argv[0], prediction_command]
+    print(sys.argv) 
 
-        gray = cv2.cvtColor(color_image, cv2.COLOR_BGR2GRAY)        
+    img_loader = loader.ImageDataLoader(current_script_path, dataset_dir, "rgbd", img_dataset_size)
 
-        #ARUCO
-        #corners, ids, rejectedImgPoints = cv2.aruco.detectMarkers(gray,dictionary)
-        #color_image	= cv2.aruco.drawDetectedMarkers(color_image,corners)
-        
-        #circle
-        gray = cv2.medianBlur(gray,5)
-        circles = cv2.HoughCircles(gray,cv2.HOUGH_GRADIENT,1,20,param1 = 100, param2 = 30, minRadius = 0, maxRadius = 0)
+    if (len(sys.argv) == 1):
+        print("No arguments provided. See help (-h).")
+        sys.exit(0)
 
-        detected_circles = np.uint16(np.around(circles))
-        for(x,y,r) in detected_circles[0,:]:
-            cv2.circle(color_image,(x,y),r,(0,255,0),3)
+    if (sys.argv[1] == record_command):
+        print("Dataset recording...")
+        recorder = gen.DatasetGenerator(dataset_dir, img_camera_size, img_camera_size)
+        recorder.record_data(datatypes.Gesture.POINTING)
+        sys.exit(0)
 
-    
-        cv2.namedWindow('RealSense', cv2.WINDOW_AUTOSIZE)
-        cv2.imshow('RealSense', color_image)
-        cv2.waitKey(1)       
-finally:
-
-    # Stop streaming
-    pipeline.stop()
+    if (sys.argv[1] == train_command):
+        print("Training...")
+        X_data, y_data = img_loader.get_train_data()
+        model = cnn_model.CnnModel(filters_count, learning_rate, img_dataset_size, None)
+        model.train(X_data, y_data, epochs_count, batch_size, self.logs_dir, test_data_ratio)
+        model.save(os.path.join(current_script_path, "new_model.h5"))
+        sys.exit(0)
