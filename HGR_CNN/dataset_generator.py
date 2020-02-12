@@ -10,12 +10,11 @@ from datetime import datetime
 current_script_path = os.path.dirname(os.path.realpath(__file__))
 dataset_path = os.path.join(current_script_path, "dataset")
 
-img_size = (640, 480)
-
+img_size = (640, 480) # TODO add change of size ?
 class DatasetGenerator:
-    def __init__(self, dataset_path, img_size):
+    def __init__(self, dataset_path, camera_img_size):
         self.dataset_path = dataset_path
-        self.img_size = img_size
+        self.camera_img_size = camera_img_size
         self.depth_max_calibration = float(1000) # millimeters
         self.img_counter = 0 
 
@@ -30,6 +29,9 @@ class DatasetGenerator:
         font = cv2.FONT_HERSHEY_SIMPLEX
         cv2.putText(image, text, (10, y_pos), font, fontScale = 0.7, color = (255,255,0), lineType = 2)
 
+    def overlay_circle_on_img(self, image, pos):
+        cv2.circle(image, center = (pos[0], pos[1]), radius = 4,  color = (255,0,0), thickness=6, lineType=8, shift=0) 
+
     def create_rgbd_img(self, color_image, depth_image):
         depth_image_filtered = np.clip(depth_image, 0, self.depth_max_calibration) / self.depth_max_calibration
         depth_image_filtered = (255 - 255.0 * depth_image_filtered).astype('uint8') 
@@ -42,6 +44,7 @@ class DatasetGenerator:
         img_path = os.path.join(self.dataset_path, img_name)
         cv2.imwrite(img_path, full_data_img)
         self.img_counter += 1
+        return index_tip_pos, is_hand_detected
         
     def record_data(self, current_gesture):
         window_name = "Dataset Recorder"
@@ -72,7 +75,8 @@ class DatasetGenerator:
                 depth_image = np.asanyarray(depth_frame.get_data())
                 color_image = np.asanyarray(color_frame.get_data())
 
-                # Apply colormap on depth image (image must be converted to 8-bit per pixel first)
+                # Apply colormap on depth image (image must be converted to
+                # 8-bit per pixel first)
                 depth_colormap = cv2.applyColorMap(cv2.convertScaleAbs(depth_image, alpha=0.03), cv2.COLORMAP_JET)
 
                 cv2.namedWindow(window_name, cv2.WINDOW_AUTOSIZE)
@@ -81,10 +85,13 @@ class DatasetGenerator:
                 user_img = np.hstack((color_image, depth_colormap))
                 self.overlay_text_on_img(user_img, "Depth median: %s" % np.median(depth_image), y_pos = 50)       
                 self.overlay_text_on_img(user_img, "Recorder gesture: %s" % current_gesture.name, y_pos = 80)       
-                self.overlay_text_on_img(user_img, "Press ESC to close...", y_pos = 450)       
-                cv2.imshow('RealSense', user_img)
+                self.overlay_text_on_img(user_img, "Press ESC to close...", y_pos = 450)   
+                    
+                index_tip_pos, is_hand_detected = self.create_and_save_dataset_img(color_image, depth_image, current_gesture)
+                if is_hand_detected: 
+                    self.overlay_circle_on_img(user_img, index_tip_pos)
 
-                self.create_and_save_dataset_img(color_image, depth_image, current_gesture)
+                cv2.imshow('RealSense', user_img)
 
                 key = cv2.waitKey(1)
         finally:
