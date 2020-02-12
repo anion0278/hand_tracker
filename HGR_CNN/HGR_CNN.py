@@ -31,7 +31,7 @@ depth_max = float(1000) # millimeters
 filters_count = 32
 learning_rate = 0.0001
 batch_size = 32
-epochs_count = 50
+epochs_count = 100
 test_data_ratio = 0.2
 
 if __name__ == "__main__":
@@ -74,5 +74,5 @@ if __name__ == "__main__":
         result[1] *= img_camera_size[1]
         result[2] *= depth_max
         result = np.round(result).astype("int")
-        print("[X:%s; Y:%s; Z:%s; Hand:%s; Gesture:%s;]" % (result[0],result[1],result[2], int(result[3]) == 1, int(result[4])))
+        print("[X:%s; Y:%s; Z:%s; Hand:%s; Gesture:%s;]" % (result[0],result[1],result[2], result[3] == 1, result[4]))
         sys.exit(0)
