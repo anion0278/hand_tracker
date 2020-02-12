@@ -1,5 +1,3 @@
-import ros_helper
-
 import numpy as np
 import os
 import cv2
@@ -32,11 +30,12 @@ class ImageDataLoader:
     def __get_train_images_names_from_folder(self):
         return list(filter(lambda x: x.startswith(self.image_state_base) and len(x) > 15, os.listdir(self.dataset_dir)))
 
-    def __parse_expected_value(self, img_name):
+    def parse_expected_value(self, img_name):
         result = []
-        regex_name_match = re.search('.+' + self.image_state_base + '(\d+)-(\d+)-(\d+)-(\d+)-(\d+)', img_name)
+        # rgbd_1_X100_Y200_Z300_handTrue_gest1_date02-12-2020_10#34#14
+        regex_name_match = re.search('.*' + self.image_state_base + '_\d+_X(\d+)_Y(\d+)_Z(\d+)_hand(.+)_gest(\d+)_date', img_name)
         for fingerIndex in range(0,5):
-            y_value = int(regex_name_match.group(fingerIndex + 1)) / 100
+            y_value = int(regex_name_match.group(fingerIndex + 1))
             result.append(y_value)
         return result
 
@@ -44,3 +43,12 @@ class ImageDataLoader:
         grayscale_img = cv2.imread(img_path, cv2.IMREAD_GRAYSCALE)
         resized = cv2.resize(grayscale_img, (self.image_target_size, self.image_target_size)).astype(np.float32)
         return resized[..., np.newaxis] # add new dimension
+
+
+# TODO unit test
+if __name__ == "__main__":
+    test_instance = ImageDataLoader("", "", "rgbd", (3,3))
+
+    result = test_instance.parse_expected_value("rgbd_1_X100_Y200_Z300_hand1_gest2_date02-12-2020_10#34#14")
+    expected_result = [100, 200, 300, 1, 2]
+    assert result == expected_result

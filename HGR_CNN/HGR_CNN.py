@@ -1,86 +1,54 @@
 import cv2
+import os
+import sys
 import pyrealsense2 as rs
 import numpy as np
+import datatypes
+import image_data_loader as loader
+import dataset_generator as gen
+import cnn_model 
+from time import time
 
-img_size = (640,480)
-img_rate = 30
+record_command = "record"
+train_command = "train"
+prediction_command = "online_prection"
 
-upper = (140,150,30)  #100,130,50
-lower = (70,74,0) #200,200,130
+current_script_path = os.path.dirname(os.path.realpath(__file__))
+current_logs_dir = os.path.join(current_script_path, "logs", format(time()))
+dataset_dir = os.path.join(current_script_path, "dataset")
 
-#dictionary = cv2.aruco.getPredefinedDictionary(cv2.aruco.DICT_4X4_50)
+img_camera_size = (640, 480) 
+img_dataset_size = (160, 120)
 
-def __init__(self, img_rate, img_size):
-    self.img_size = img_size
-    self.img_rate = img_rate
+filters_count = 32
+learning_rate = 0.0001
+batch_size = 64
+epochs_count = 50
+test_data_ratio = 0.2
 
+if __name__ == "__main__":
 
-try:
-    pipeline = rs.pipeline()
-    config = rs.config()
+    sys.argv = [sys.argv[0], record_command]
+    #sys.argv = [sys.argv[0], train_command]
+    #sys.argv = [sys.argv[0], prediction_command]
+    print(sys.argv) 
 
-    config.enable_stream(rs.stream.depth, img_size[0], img_size[1], rs.format.z16, img_rate)
-    config.enable_stream(rs.stream.color, img_size[0], img_size[1], rs.format.bgr8, img_rate)
+    img_loader = loader.ImageDataLoader(current_script_path, dataset_dir, "rgbd", img_dataset_size)
 
-    pipeline.start(config)
- 
-    align_to = rs.stream.color
-    align = rs.align(align_to)
-    
-    while True:
-       
-        cv2.namedWindow('RealSense', cv2.WINDOW_AUTOSIZE)
-        
-        frames = pipeline.wait_for_frames()
-        aligned_frames = align.process(frames)
+    if (len(sys.argv) == 1):
+        print("No arguments provided. See help (-h).")
+        sys.exit(0)
 
-        depth = aligned_frames.get_depth_frame()
-        color = aligned_frames.get_color_frame()
-        if not depth or not color: continue
+    if (sys.argv[1] == record_command):
+        print("Dataset recording...")
+        recorder = gen.DatasetGenerator(dataset_dir, img_camera_size, img_camera_size)
+        recorder.record_data(datatypes.Gesture.POINTING)
+        sys.exit(0)
 
-        depth_image = np.asanyarray(depth.get_data())
-        color_image = np.asanyarray(color.get_data())
-        gray = cv2.cvtColor(color_image, cv2.COLOR_BGR2GRAY)        
-        
-        #BLOB detection
-      
-        mask = cv2.inRange(color_image, lower, upper)
-        cv2.imshow('mask', mask)
-        
-        contours, hierarchy = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
-        if len(contours)>0:
-            blob = max(contours, key=lambda el: cv2.contourArea(el))
-            M = cv2.moments(blob)
-            center = (int(M["m10"] / M["m00"]), int(M["m01"] / M["m00"]))
-
-            cv2.circle(color_image, center, 2, (0,0,255), -1)
-
-        
-        #ARUCO
-        #color_intrinsic = color.profile.as_video_stream_profile().intrinsics
-
-        #corners, ids, rejectedImgPoints = cv2.aruco.detectMarkers(gray,dictionary)
-       
-        #rvecs, tvecs, _objPoints = cv2.aruco.estimatePoseSingleMarkers(corners,30, camera_matrix(color_intrinsic), np.zeros(5))
- 
-        #color_image	= cv2.aruco.drawDetectedMarkers(color_image,corners)
-        #color_image	= cv2.aruco.drawAxis(color_image, camera_matrix(color_intrinsic), np.zeros(5), rvecs, tvecs,20)
-
-        
-        #circle
-        #gray = cv2.medianBlur(gray,5)
-        #circles = cv2.HoughCircles(gray,cv2.HOUGH_GRADIENT,1,20,param1 = 100, param2 = 30, minRadius = 0, maxRadius = 0)
-
-        #detected_circles = np.uint16(np.around(circles))
-        #for(x,y,r) in detected_circles[0,:]:
-        #    cv2.circle(color_image,(x,y),r,(0,255,0),3)
-
-    
-
-        cv2.imshow('RealSense', color_image)
-        cv2.waitKey(1)       
-finally:
-
-    # Stop streaming
-    pipeline.stop()
-
+    if (sys.argv[1] == train_command):
+        print("Training...")
+        X_data, y_data = img_loader.get_train_data()
+        model = cnn_model.CnnModel(filters_count, learning_rate, img_dataset_size, None)
+        model.train(X_data, y_data, epochs_count, batch_size, self.logs_dir, test_data_ratio)
+        model.save(os.path.join(current_script_path, "new_model.h5"))
+        sys.exit(0)

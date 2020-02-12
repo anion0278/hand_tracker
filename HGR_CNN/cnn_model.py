@@ -20,8 +20,6 @@ class CnnModel:
         else:
             self.model = tf.keras.models.load_model(existing_model_name)
             self.setup_graph()
-        #self.session = None
-        #self.graph = None
 
     def train(self, X_dataset, y_dataset, nb_epoch, batch_size, logs_path, test_data_ratio):
 
@@ -68,11 +66,11 @@ class CnnModel:
         self.model.save(model_name)
         print("Model saved: %s" % model_name) 
 
-    def __create_model(self, conv_filters, learning_rate, image_sqr_size):
+    def __create_model(self, conv_filters, learning_rate, image_size):
         conv_kernel = (3, 3)
         pooling_kernel = (2, 2)
         relu_activation = 'relu'
-        input_shape = (image_sqr_size, image_sqr_size, 1)
+        input_shape = (*image_size, 4)
 
         model = Sequential()
 
@@ -95,8 +93,6 @@ class CnnModel:
         model.add(Dropout(0.2))
         model.add(BatchNormalization())
 
-        # try model.add(LeakyReLU(alpha=0.05))
-
         model.add(Conv2D(conv_filters * 2, kernel_size=conv_kernel, activation=relu_activation)) 
         model.add(MaxPooling2D(pool_size=pooling_kernel))
         model.add(BatchNormalization())
@@ -109,7 +105,6 @@ class CnnModel:
         model.add(Dense(5, activation="linear")) 
 
         opt = Adam(learning_rate=learning_rate)
-        #opt = Adadelta(learning_rate=1.0, rho=0.95)
 
         model.compile(loss="mean_squared_error", optimizer=opt)
         return model
