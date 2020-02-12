@@ -1,7 +1,8 @@
 import cv2
 import numpy as np
 
-min_blob_size = 50
+min_blob_size = 60
+max_blob_size = 1100
 
 def recognize_finger_tip(color_image, depth_image):
     
@@ -22,23 +23,22 @@ def recognize_finger_tip(color_image, depth_image):
             print('Contour not detected')
             return (0,0,0), False
 
-        else:
-            blob = max(contours, key=lambda el: cv2.contourArea(el))
-                
-            #minRect = cv2.minAreaRect(blob) # TODO check block coverage area
-            if len(blob) < min_blob_size:
-                return (0,0,0), False
+        blob = max(contours, key=lambda el: cv2.contourArea(el))
+        
+        blobSize = cv2.contourArea(blob)        
+        
+        if (blobSize < min_blob_size)or(blobSize > max_blob_size):
+            return (0,0,0), False
 
-            M = cv2.moments(blob)
-            center = (int(M["m10"] / M["m00"]), int(M["m01"] / M["m00"]))
+        M = cv2.moments(blob)
+        center = (int(M["m10"] / M["m00"]), int(M["m01"] / M["m00"]))
+        
+        z_heights = []
+        for point in blob:
+            z_heights.append(depth_image[point[0][1], point[0][0]])
+        z = int(np.median(z_heights))
 
-            z_heights = []
-            for point in blob:
-                point_a = point[0]
-                z_heights.append(depth_image[point_a[0], point_a[1]])
-            z = int(np.round(np.mean(z_heights),0))
-
-            return (center[0],center[1],z), True
+        return (center[0],center[1],z), True
     
     except Exception as ex:
         print('No blob detected')
