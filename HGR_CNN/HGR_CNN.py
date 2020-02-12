@@ -14,7 +14,7 @@ train_command = "train"
 prediction_command = "online_prection"
 
 current_script_path = os.path.dirname(os.path.realpath(__file__))
-current_logs_dir = os.path.join(current_script_path, "logs", format(time()))
+logs_dir = os.path.join(current_script_path, "logs", format(time()))
 dataset_dir = os.path.join(current_script_path, "dataset")
 
 img_camera_size = (640, 480) 
@@ -28,8 +28,8 @@ test_data_ratio = 0.2
 
 if __name__ == "__main__":
 
-    sys.argv = [sys.argv[0], record_command]
-    #sys.argv = [sys.argv[0], train_command]
+    #sys.argv = [sys.argv[0], record_command]
+    sys.argv = [sys.argv[0], train_command]
     #sys.argv = [sys.argv[0], prediction_command]
     print(sys.argv) 
 
@@ -49,6 +49,6 @@ if __name__ == "__main__":
         print("Training...")
         X_data, y_data = img_loader.get_train_data()
         model = cnn_model.CnnModel(filters_count, learning_rate, img_dataset_size, None)
-        model.train(X_data, y_data, epochs_count, batch_size, self.logs_dir, test_data_ratio)
+        model.train(X_data, y_data, epochs_count, batch_size, logs_dir, test_data_ratio)
         model.save(os.path.join(current_script_path, "new_model.h5"))
         sys.exit(0)

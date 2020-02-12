@@ -13,8 +13,8 @@ class ImageDataLoader:
     def load_single_img(self, img_relative_path):
         img_path = os.path.join(self.main_script_path, img_relative_path)
         print("Loading image from %s ..." % img_path)
-        X_img_data = self.__load_resized_grayscaled(img_path)
-        y_expected = self.__parse_expected_value(img_relative_path)
+        X_img_data = self.__load_resized(img_path)
+        y_expected = self.parse_expected_value(img_relative_path)
         print("Loaded: " + img_relative_path + " -> " + str(y_expected))
         return X_img_data, y_expected
 
@@ -39,10 +39,10 @@ class ImageDataLoader:
             result.append(y_value)
         return result
 
-    def __load_resized_grayscaled(self, img_path):
-        grayscale_img = cv2.imread(img_path, cv2.IMREAD_GRAYSCALE)
-        resized = cv2.resize(grayscale_img, (self.image_target_size, self.image_target_size)).astype(np.float32)
-        return resized[..., np.newaxis] # add new dimension
+    def __load_resized(self, img_path):
+        img = cv2.imread(img_path, cv2.IMREAD_UNCHANGED)
+        resized = cv2.resize(img, self.image_target_size).astype(np.float32)
+        return resized #[..., np.newaxis] # add new dimension
 
 
 # TODO unit test

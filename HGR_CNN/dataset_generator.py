@@ -79,7 +79,7 @@ class DatasetGenerator:
                 # 8-bit per pixel first)
                 depth_colormap = cv2.applyColorMap(cv2.convertScaleAbs(depth_image, alpha=0.03), cv2.COLORMAP_JET)
 
-                cv2.namedWindow(window_name, cv2.WINDOW_AUTOSIZE)
+                #cv2.namedWindow(window_name, cv2.WINDOW_AUTOSIZE)
 
                 # Stack both images horizontally
                 user_img = np.hstack((color_image, depth_colormap))
@@ -91,12 +91,17 @@ class DatasetGenerator:
                 self.overlay_text_on_img(user_img, "Tip position: %s" % str(index_tip_pos), y_pos = 50)       
                 self.overlay_text_on_img(user_img, "Recorder gesture: %s" % current_gesture.name, y_pos = 80)       
                 self.overlay_text_on_img(user_img, "Press ESC to close...", y_pos = 450)   
-                cv2.imshow('RealSense', user_img)
+                cv2.imshow(window_name, user_img)
 
                 key = cv2.waitKey(1)
+
+        except KeyError:
+            print("ESC pressed")
+
         finally:
             pipeline.stop()
             cv2.destroyWindow(window_name)
+            cv2.destroyWindow("Mask")
 
 
 #if __name__ == "__main__":
