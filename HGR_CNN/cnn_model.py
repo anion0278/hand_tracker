@@ -70,7 +70,7 @@ class CnnModel:
         conv_kernel = (3, 3)
         pooling_kernel = (2, 2)
         relu_activation = 'relu'
-        input_shape = (*image_size, 4)
+        input_shape = (image_size[1], image_size[0], 4)
 
         model = Sequential()
 
