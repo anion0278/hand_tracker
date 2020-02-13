@@ -66,7 +66,8 @@ if __name__ == "__main__":
 
     if (sys.argv[1] == prediction_command):
         print("Online prediction...")
-        predict = predictor.OnlinePredictor()
+        model = cnn_model.CnnModel(filters_count, learning_rate, img_dataset_size, os.path.join(current_script_path, model_name))
+        predict = predictor.OnlinePredictor(model, img_camera_size, img_dataset_size, depth_max)
         predict.predict_online()
         sys.exit(0)
 
