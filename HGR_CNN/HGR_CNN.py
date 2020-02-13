@@ -12,40 +12,48 @@ from time import time
 
 record_command = "record"
 train_command = "train"
+predict_command = "predict"
 prediction_command = "online_prection"
+
+model_name = "current_model.h5"
 
 current_script_path = os.path.dirname(os.path.realpath(__file__))
 logs_dir = os.path.join(current_script_path, "logs", format(time()))
 dataset_dir = os.path.join(current_script_path, "dataset")
 
+record_when_no_hand = False
+recorded_gesture = datatypes.Gesture.POINTING
+
 img_camera_size = (640, 480) 
 img_dataset_size = (160, 120)
 
+depth_max = float(1000) # millimeters
+
 filters_count = 32
 learning_rate = 0.0001
-batch_size = 64
-epochs_count = 50
+batch_size = 32
+epochs_count = 100
 test_data_ratio = 0.2
 
 if __name__ == "__main__":
 
-    sys.argv = [sys.argv[0], record_command]
+    #sys.argv = [sys.argv[0], record_command]
     #sys.argv = [sys.argv[0], train_command]
 #rgbd_1_X0_Y0_Z0_hand0_gest0_date02-12-2020_14#38#07.png
     #sys.argv = [sys.argv[0], predict_command, os.path.join(dataset_dir, "rgbd_17569_X234_Y285_Z595_hand1_gest1_date02-12-2020_15#02#32.png")]
     sys.argv = [sys.argv[0], prediction_command]
     print(sys.argv) 
 
-    img_loader = loader.ImageDataLoader(current_script_path, dataset_dir, "rgbd", img_dataset_size)
-
+    img_loader = loader.ImageDataLoader(current_script_path, dataset_dir, "rgbd", img_dataset_size, img_camera_size, depth_max)
+    
     if (len(sys.argv) == 1):
         print("No arguments provided. See help (-h).")
         sys.exit(0)
 
     if (sys.argv[1] == record_command):
         print("Dataset recording...")
-        recorder = gen.DatasetGenerator(dataset_dir, img_camera_size, img_dataset_size)
-        recorder.record_data(datatypes.Gesture.OPEN)
+        recorder = gen.DatasetGenerator(record_when_no_hand, dataset_dir, img_camera_size, img_dataset_size, depth_max)
+        recorder.record_data(recorded_gesture)
         sys.exit(0)
 
     if (sys.argv[1] == train_command):

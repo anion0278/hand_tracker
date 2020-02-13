@@ -6,14 +6,14 @@ import datatypes
 import simple_recognizer
 import sys
 
-
 class OnlinePredictor:
-    def __init__(self, record_when_no_hand, dataset_path, camera_img_size, dataset_img_size, depth_max):
+    def __init__(self, record_when_no_hand, model, camera_img_size, dataset_img_size, depth_max):
         self.dataset_path = dataset_path
         self.camera_img_size = camera_img_size
         self.dataset_img_size = dataset_img_size
         self.depth_max_calibration = depth_max
         self.record_when_no_hand = record_when_no_hand
+        self.model = model
         self.img_counter = 0 
 
     def overlay_text_on_img(self, image, text, y_pos):
