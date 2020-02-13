@@ -71,8 +71,6 @@ class OnlinePredictor:
                 resized_img = cv2.resize(full_data_img, self.dataset_img_size).astype(np.float32)
                 index_tip_pos, is_hand_detected = simple_recognizer.recognize_finger_tip(color_image, depth_image)
 
-
-
                 # test
                 #img_name = os.path.join(dataset_dir, "rgbd_8594_X150_Y167_Z439_hand1_gest1_date02-12-2020_14#42#54.png")
                 #img = cv2.imread(img_name, cv2.IMREAD_UNCHANGED)
