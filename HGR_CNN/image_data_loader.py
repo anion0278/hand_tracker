@@ -34,7 +34,7 @@ class ImageDataLoader:
 
     def parse_expected_value(self, img_name):
         result = []
-        # rgbd_1_X100_Y200_Z300_handTrue_gest1_date02-12-2020_10#34#14
+        # TODO counter of image should be in the end of name
         regex_name_match = re.search('.*' + self.image_state_base + '_\d+_X(\d+)_Y(\d+)_Z(\d+)_hand(.+)_gest(\d+)_date', img_name)
         for fingerIndex in range(0,5):
             y_value = int(regex_name_match.group(fingerIndex + 1))
