@@ -4,11 +4,13 @@ import cv2
 import re
 
 class ImageDataLoader:
-    def __init__(self, main_script_path, dataset_dir, image_state_base, image_target_size):
+    def __init__(self, main_script_path, dataset_dir, image_state_base, image_target_size, image_camera_size, depth_max):
         self.image_state_base = image_state_base
         self.main_script_path = main_script_path
         self.dataset_dir = dataset_dir
         self.image_target_size = image_target_size
+        self.image_camera_size = image_camera_size
+        self.depth_max = depth_max
 
     def load_single_img(self, img_relative_path):
         img_path = os.path.join(self.main_script_path, img_relative_path)
@@ -37,12 +39,15 @@ class ImageDataLoader:
         for fingerIndex in range(0,5):
             y_value = int(regex_name_match.group(fingerIndex + 1))
             result.append(y_value)
+        result[0] /= self.image_camera_size[0]
+        result[1] /= self.image_camera_size[1]
+        result[2] /= self.depth_max
         return result
 
     def __load_resized(self, img_path):
         img = cv2.imread(img_path, cv2.IMREAD_UNCHANGED)
         resized = cv2.resize(img, self.image_target_size).astype(np.float32)
-        return resized #[..., np.newaxis] # add new dimension
+        return resized
 
 
 # TODO unit test
