@@ -248,4 +248,5 @@ ModelManifest.xml
 /d_image.png
 /HGR_CNN/dataset
 /HGR_CNN/logs
-/HGR_CNN/__pychache__
+/HGR_CNN/__pycache__
+/HGR_CNN/img1_Color_Color.png
