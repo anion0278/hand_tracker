@@ -58,8 +58,13 @@ class DatasetGenerator:
         config.enable_stream(rs.stream.depth, self.camera_img_size[0], self.camera_img_size[1], rs.format.z16, image_rate)
         config.enable_stream(rs.stream.color, self.camera_img_size[0], self.camera_img_size[1], rs.format.bgr8, image_rate)
 
-        pipeline.start(config)
+        profile = pipeline.start(config)
 
+        color_sensor = profile.get_device().query_sensors()[1]
+        color_sensor.set_option(rs.option.enable_auto_exposure, False)
+        color_sensor.set_option(rs.option.enable_auto_white_balance, False)
+
+        
         align_to = rs.stream.color
         align = rs.align(align_to)
 
