@@ -7,6 +7,7 @@ import datatypes
 import image_data_loader as loader
 import dataset_generator as gen
 import cnn_model 
+import predictor_facade as predictor 
 from time import time
 
 record_command = "record"
@@ -39,8 +40,8 @@ if __name__ == "__main__":
     #sys.argv = [sys.argv[0], record_command]
     #sys.argv = [sys.argv[0], train_command]
 #rgbd_1_X0_Y0_Z0_hand0_gest0_date02-12-2020_14#38#07.png
-    sys.argv = [sys.argv[0], predict_command, os.path.join(dataset_dir, "rgbd_17569_X234_Y285_Z595_hand1_gest1_date02-12-2020_15#02#32.png")]
-    #sys.argv = [sys.argv[0], prediction_command]
+    #sys.argv = [sys.argv[0], predict_command, os.path.join(dataset_dir, "rgbd_17569_X234_Y285_Z595_hand1_gest1_date02-12-2020_15#02#32.png")]
+    sys.argv = [sys.argv[0], prediction_command]
     print(sys.argv) 
 
     img_loader = loader.ImageDataLoader(current_script_path, dataset_dir, "rgbd", img_dataset_size, img_camera_size, depth_max)
@@ -61,6 +62,12 @@ if __name__ == "__main__":
         model = cnn_model.CnnModel(filters_count, learning_rate, img_dataset_size, None)
         model.train(X_data, y_data, epochs_count, batch_size, logs_dir, test_data_ratio)
         model.save(os.path.join(current_script_path, "new_model.h5"))
+        sys.exit(0)
+
+    if (sys.argv[1] == prediction_command):
+        print("Online prediction...")
+        predict = predictor.OnlinePredictor()
+        predict.predict_online()
         sys.exit(0)
 
     if (sys.argv[1] == predict_command and not(sys.argv[2].isspace())):
