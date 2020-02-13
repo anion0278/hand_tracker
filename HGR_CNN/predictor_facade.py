@@ -71,8 +71,7 @@ class OnlinePredictor:
                 resized_img = cv2.resize(full_data_img, self.dataset_img_size).astype(np.float32)
                 index_tip_pos, is_hand_detected = simple_recognizer.recognize_finger_tip(color_image, depth_image)
 
-                if is_hand_detected: 
-                    self.overlay_circle_on_img(user_img, index_tip_pos)
+
 
                 # test
                 #img_name = os.path.join(dataset_dir, "rgbd_8594_X150_Y167_Z439_hand1_gest1_date02-12-2020_14#42#54.png")
@@ -89,6 +88,12 @@ class OnlinePredictor:
                 # Recognition end
 
                 print("[X:%s; Y:%s; Z:%s; Hand:%s; Gesture:%s;]" % (result[0],result[1],result[2], result[3]== 1, result[4]))
+
+                if is_hand_detected: 
+                    self.overlay_circle_on_img(user_img, index_tip_pos)
+
+                if result[3]== 1: 
+                    self.overlay_circle_on_img(user_img, result[0:3], color = (0,255,255))
 
                 self.overlay_text_on_img(user_img, "Tip position (Ground truth): %s" % str(index_tip_pos), y_pos = 50)       
                 self.overlay_text_on_img(user_img, "Predicted tip position: %s" % str(result[0:3]) , y_pos = 80)       
