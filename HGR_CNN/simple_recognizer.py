@@ -7,10 +7,12 @@ max_blob_size = 2500
 def recognize_finger_tip(color_image, depth_image):
     
     #green tape
-    upper = (140,150,30)  
-    lower = (50,65,0)
-
-    mask = cv2.inRange(color_image, lower, upper)
+    sensitivity = 15
+    upper = (60+sensitivity,255,80)  
+    lower = (60-sensitivity,0,10)
+    
+    hsv = cv2.cvtColor(color_image,cv2.COLOR_BGR2HSV)
+    mask = cv2.inRange(hsv, lower, upper)
     cv2.imshow('Mask', mask)
     key = cv2.waitKey(1)
     if key == 27: 
