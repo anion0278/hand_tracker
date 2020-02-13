@@ -33,7 +33,7 @@ class CnnModel:
         test_datagen = ImageDataGenerator(rescale=1. / 255)
 
         tensorboard = TensorBoard(log_dir=logs_path)
-
+        # TODO make multistage training -> divide training into phases and save network after each phase
         #validation_split=0.20 - instead of splitting, but the data has to be
         #shuffled beforehand!
         self.model.fit_generator(train_datagen.flow(X_train, y_train, batch_size=batch_size),

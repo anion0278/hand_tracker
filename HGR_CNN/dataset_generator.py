@@ -23,6 +23,7 @@ class DatasetGenerator:
             gesture = datatypes.Gesture.UNDEFINED
         timestamp = datetime.now().strftime("%m-%d-%Y_%H#%M#%S")
         is_hand_detected_binary = int(is_hand_detected * 1)
+        # TODO put counter of image to the end of name
         return "rgbd_{}_X{}_Y{}_Z{}_hand{}_gest{}_date{}.png".format(img_counter, tip_pos[0], tip_pos[1], tip_pos[2], is_hand_detected_binary, gesture.value, timestamp)
 
     def overlay_text_on_img(self, image, text, y_pos):
