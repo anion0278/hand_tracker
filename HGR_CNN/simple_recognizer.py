@@ -2,13 +2,13 @@ import cv2
 import numpy as np
 
 min_blob_size = 60
-max_blob_size = 1100
+max_blob_size = 2500
 
 def recognize_finger_tip(color_image, depth_image):
     
     #green tape
     upper = (140,150,30)  
-    lower = (70,74,0)
+    lower = (50,65,0)
 
     mask = cv2.inRange(color_image, lower, upper)
     cv2.imshow('Mask', mask)
@@ -28,7 +28,8 @@ def recognize_finger_tip(color_image, depth_image):
         blob = max(contours, key=lambda el: cv2.contourArea(el))
         
         blobSize = cv2.contourArea(blob)        
-        
+        print(blobSize)
+
         if (blobSize < min_blob_size)or(blobSize > max_blob_size):
             return (0,0,0), False
 
