@@ -28,8 +28,8 @@ test_data_ratio = 0.2
 
 if __name__ == "__main__":
 
-    #sys.argv = [sys.argv[0], record_command]
-    sys.argv = [sys.argv[0], train_command]
+    sys.argv = [sys.argv[0], record_command]
+    #sys.argv = [sys.argv[0], train_command]
     #sys.argv = [sys.argv[0], prediction_command]
     print(sys.argv) 
 
@@ -42,7 +42,7 @@ if __name__ == "__main__":
     if (sys.argv[1] == record_command):
         print("Dataset recording...")
         recorder = gen.DatasetGenerator(dataset_dir, img_camera_size, img_dataset_size)
-        recorder.record_data(datatypes.Gesture.POINTING)
+        recorder.record_data(datatypes.Gesture.OPEN)
         sys.exit(0)
 
     if (sys.argv[1] == train_command):
