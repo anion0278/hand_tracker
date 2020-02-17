@@ -30,17 +30,17 @@ img_dataset_size = (160, 120)
 depth_max = float(1000) # millimeters
 
 filters_count = 32
-learning_rate = 0.0001
+learning_rate = 0.0005
 batch_size = 32
-epochs_count = 100
+epochs_count = 40
 test_data_ratio = 0.05
 
 if __name__ == "__main__":
 
     #sys.argv = [sys.argv[0], record_command]
-    #sys.argv = [sys.argv[0], train_command]
+    sys.argv = [sys.argv[0], train_command]
 #rgbd_1_X0_Y0_Z0_hand0_gest0_date02-12-2020_14#38#07.png
-    sys.argv = [sys.argv[0], predict_command, os.path.join(dataset_dir, "rgbd_104_X91_Y54_Z516_hand1_gest2_date02-13-2020_10#14#06.png")]
+    #sys.argv = [sys.argv[0], predict_command, os.path.join(dataset_dir, "rgbd_34_X8_Y327_Z533_hand1_gest1_date02-12-2020_14#38#08.png")]
     #sys.argv = [sys.argv[0], prediction_command]
     print(sys.argv) 
 
