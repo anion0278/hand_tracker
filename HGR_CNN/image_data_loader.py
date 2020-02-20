@@ -46,8 +46,9 @@ class ImageDataLoader:
 
     def __load_resized(self, img_path):
         img = cv2.imread(img_path, cv2.IMREAD_UNCHANGED)
-        resized = cv2.resize(img, self.image_target_size).astype(np.float32)
-        return resized
+        resized = cv2.resize(img, self.image_target_size)[:,:,3].astype(np.float32)  # TODO check if cast is required
+        #resized = np.array(depth_channel)
+        return resized[..., np.newaxis]
 
 
 # TODO unit test

@@ -69,42 +69,41 @@ class CnnModel:
     def __create_model(self, conv_filters, learning_rate, image_size):
         conv_kernel = (3, 3)
         pooling_kernel = (2, 2)
-        relu_activation = 'relu'
-        input_shape = (image_size[1], image_size[0], 4)
+        activation = LeakyReLU(alpha=0.1)
+        input_shape = (image_size[1], image_size[0], 1)
 
         model = Sequential()
 
         model.add(Conv2D(conv_filters, kernel_size=conv_kernel, input_shape=input_shape))
-        model.add(BatchNormalization()) # axis should be set to Channels dimension (width, height, channels),
-                                        # default is -1 (the last dimension)
-        model.add(Activation(relu_activation)) 
+        model.add(BatchNormalization()) # axis should be set to Channels (w, h, ch), default is -1 (the last dimension)
+        model.add(activation) 
         model.add(MaxPooling2D(pool_size=pooling_kernel))
         # No dropout for conv layers, because DP should not be used before ANY Batch Norm
 
         model.add(Conv2D(conv_filters, kernel_size=conv_kernel)) # TODO add padding='SAME'
         model.add(BatchNormalization()) # Normalization after Conv layer, but can be after ReLU (compare?)
-        model.add(Activation(relu_activation)) # TODO try model.add(LeakyReLU(alpha=0.1)), but CHECK if it can be saved into .h5
+        model.add(activation)  
         model.add(MaxPooling2D(pool_size=pooling_kernel))
 
         model.add(Conv2D(conv_filters * 2, kernel_size=conv_kernel))
         model.add(BatchNormalization())
-        model.add(Activation(relu_activation)) 
+        model.add(activation) 
         model.add(MaxPooling2D(pool_size=pooling_kernel))
 
         model.add(Conv2D(conv_filters * 2, kernel_size=conv_kernel))
         model.add(BatchNormalization())
-        model.add(Activation(relu_activation)) 
+        model.add(activation) 
         model.add(MaxPooling2D(pool_size=pooling_kernel))
 
         model.add(Conv2D(conv_filters * 2, kernel_size=conv_kernel)) 
         model.add(BatchNormalization()) 
-        model.add(Activation(relu_activation)) 
+        model.add(activation) 
         model.add(MaxPooling2D(pool_size=pooling_kernel))
 
         model.add(Flatten())
         model.add(Dense(image_size[0] * image_size[1] * 2))
-        model.add(Activation(relu_activation)) 
-        model.add(Dropout(0.5)) # Fraction of the input units to drop. droupout should be after normalization. 
+        model.add(activation) 
+        model.add(Dropout(0.5)) # Fraction of the input units to drop(!). droupout should be after normalization. 
 
         model.add(Dense(5, activation="linear")) 
 
