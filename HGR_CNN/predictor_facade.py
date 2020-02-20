@@ -67,14 +67,15 @@ class OnlinePredictor:
                 user_img = np.hstack((color_image, depth_colormap))
 
                 # recognition
-                full_data_img = self.create_rgbd_img(color_image, depth_image)
-                resized_img = cv2.resize(full_data_img, self.dataset_img_size).astype(np.float32)
+                depth_channel = self.create_rgbd_img(color_image, depth_image)[:,:,3]
+                resized_img = cv2.resize(depth_channel, self.dataset_img_size).astype(np.float32)
+                resized_img = resized_img[..., np.newaxis]
                 index_tip_pos, is_hand_detected = simple_recognizer.recognize_finger_tip(color_image, depth_image)
 
                 # test
-                #img_name = os.path.join(dataset_dir, "rgbd_34_X8_Y327_Z533_hand1_gest1_date02-12-2020_14#38#08.png")
-                #img = cv2.imread(img_name, cv2.IMREAD_UNCHANGED)
-                #resized_img = cv2.resize(img, self.dataset_img_size).astype(np.float32)
+                img_name = os.path.join(dataset_dir, "rgbd_34_X8_Y327_Z533_hand1_gest1_date02-12-2020_14#38#08.png")
+                img = cv2.imread(img_name, cv2.IMREAD_UNCHANGED)
+                resized_img = cv2.resize(img, self.dataset_img_size).astype(np.float32)
 
                 result = self.model.predict_single_image(resized_img, [0,0,0,0,0])
                 result = np.clip(result, 0, 1)

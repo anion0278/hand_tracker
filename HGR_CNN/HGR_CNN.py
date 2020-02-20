@@ -13,7 +13,7 @@ from time import time
 record_command = "record"
 train_command = "train"
 predict_command = "predict"
-prediction_command = "online_prection"
+online_command = "online_prection"
 
 model_name = "current_model.h5"
 
@@ -31,7 +31,7 @@ depth_max = float(1000) # millimeters
 
 filters_count = 32
 learning_rate = 0.0005
-batch_size = 32
+batch_size = 100
 epochs_count = 40
 test_data_ratio = 0.05
 
@@ -39,9 +39,9 @@ if __name__ == "__main__":
 
     #sys.argv = [sys.argv[0], record_command]
     sys.argv = [sys.argv[0], train_command]
-#rgbd_1_X0_Y0_Z0_hand0_gest0_date02-12-2020_14#38#07.png
-    #sys.argv = [sys.argv[0], predict_command, os.path.join(dataset_dir, "rgbd_34_X8_Y327_Z533_hand1_gest1_date02-12-2020_14#38#08.png")]
-    #sys.argv = [sys.argv[0], prediction_command]
+    #rgbd_1_X0_Y0_Z0_hand0_gest0_date02-12-2020_14#38#07.png
+    #sys.argv = [sys.argv[0], predict_command, os.path.join(dataset_dir, "rgbd_6561_X240_Y47_Z221_hand1_gest1_date02-12-2020_14#41#47.png")]
+    #sys.argv = [sys.argv[0], online_command]
     print(sys.argv) 
 
     img_loader = loader.ImageDataLoader(current_script_path, dataset_dir, "rgbd", img_dataset_size, img_camera_size, depth_max)
@@ -64,7 +64,7 @@ if __name__ == "__main__":
         model.save(os.path.join(current_script_path, "new_model.h5"))
         sys.exit(0)
 
-    if (sys.argv[1] == prediction_command):
+    if (sys.argv[1] == online_command):
         print("Online prediction...")
         model = cnn_model.CnnModel(filters_count, learning_rate, img_dataset_size, os.path.join(current_script_path, model_name))
         predict = predictor.OnlinePredictor(model, img_camera_size, img_dataset_size, depth_max)
