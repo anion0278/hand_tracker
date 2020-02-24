@@ -12,8 +12,6 @@
     <OutputPath>.</OutputPath>
     <Name>HGR_CNN</Name>
     <RootNamespace>HGR_CNN</RootNamespace>
-    <InterpreterId>{147bd31f-25eb-4fd7-88c0-f9fa5ede71cc}</InterpreterId>
-    <InterpreterVersion>3.5</InterpreterVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <DebugSymbols>true</DebugSymbols>
@@ -32,15 +30,10 @@
     <Compile Include="predictor_facade.py" />
     <Compile Include="simple_recognizer.py" />
   </ItemGroup>
-  <ItemGroup>
-    <InterpreterReference Include="{147bd31f-25eb-4fd7-88c0-f9fa5ede71cc}\3.5" />
-  </ItemGroup>
+  <ItemGroup />
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
-    <PtvsTargetsFile>$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets</PtvsTargetsFile>
   </PropertyGroup>
-  <Import Condition="Exists($(PtvsTargetsFile))" Project="$(PtvsTargetsFile)" />
-  <Import Condition="!Exists($(PtvsTargetsFile))" Project="$(MSBuildToolsPath)\Microsoft.Common.targets" />
   <!-- Uncomment the CoreCompile target to enable the Build command in
        Visual Studio and specify your pre- and post-build commands in
        the BeforeBuild and AfterBuild targets below. -->
@@ -49,4 +42,5 @@
   </Target>
   <Target Name="AfterBuild">
   </Target>
+  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
 </Project>
