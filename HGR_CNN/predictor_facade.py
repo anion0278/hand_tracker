@@ -34,13 +34,15 @@ class OnlinePredictor:
         depth_channel = self.create_rgbd_img(color_image, depth_image)[:,:,3]
         resized_img = cv2.resize(depth_channel, self.dataset_img_size).astype(np.float32)
         resized_img = resized_img[..., np.newaxis]
-        index_tip_pos, is_hand_detected = simple_recognizer.recognize_finger_tip(color_image, depth_image)
         
         result = self.model.predict_single_image(resized_img, [0,0,0,0,0])
         #result = np.clip(result, 0, 1)
         result[0] *= self.camera_img_size[0]
         result[1] *= self.camera_img_size[1]
         result[2] *= self.depth_max_calibration
+        result[3] = np.clip(result[3], 0, 1)
+        result[4] = np.clip(result[4], 0, 3)
+
         result = np.round(result).astype("int")
         print("[X:%s; Y:%s; Z:%s; Hand:%s; Gesture:%s;]" % (result[0],result[1],result[2], result[3]== 1, result[4]))
         return result
@@ -80,6 +82,8 @@ class OnlinePredictor:
 
                 # Stack both images horizontally
                 user_img = np.hstack((color_image, depth_colormap))
+
+                index_tip_pos, is_hand_detected = simple_recognizer.recognize_finger_tip(color_image, depth_image)
 
                 result = self.recognize_online(color_image, depth_image)
 

@@ -3,7 +3,17 @@ import os
 import cv2
 import re
 
-class ImageDataLoader:
+
+def get_img_name(img_counter, tip_pos, is_hand_detected, gesture):
+    if not is_hand_detected: 
+        tip_pos = (0,0,0)
+        gesture = datatypes.Gesture.UNDEFINED
+    timestamp = datetime.now().strftime("%m-%d-%Y_%H#%M#%S")
+    is_hand_detected_binary = int(is_hand_detected * 1)
+    # TODO put counter of image to the end of name
+    return "rgbd_{}_X{}_Y{}_Z{}_hand{}_gest{}_date{}.png".format(img_counter, tip_pos[0], tip_pos[1], tip_pos[2], is_hand_detected_binary, gesture.value, timestamp)
+
+class ImageDataManager:
     def __init__(self, main_script_path, dataset_dir, image_state_base, image_target_size, image_camera_size, depth_max):
         self.image_state_base = image_state_base
         self.main_script_path = main_script_path
@@ -49,14 +59,16 @@ class ImageDataLoader:
         #try:
         resized = cv2.resize(img, self.image_target_size)[:,:,3].astype(np.float32)  # TODO check if cast is required
         #except:
-        #    resized = cv2.resize(img, self.image_target_size).astype(np.float32)  # TODO check if cast is required
+        #    resized = cv2.resize(img,
+                                                                                           #    self.image_target_size).astype(np.float32) # TODO check if cast is
+                                                                                           #    required
         #resized = np.array(depth_channel)
         return resized[..., np.newaxis]
 
 
 # TODO unit test
 if __name__ == "__main__":
-    test_instance = ImageDataLoader("", "", "rgbd", (3,3))
+    test_instance = ImageDataManager("", "", "rgbd", (3,3))
 
     result = test_instance.parse_expected_value("rgbd_1_X100_Y200_Z300_hand1_gest2_date02-12-2020_10#34#14")
     expected_result = [100, 200, 300, 1, 2]
