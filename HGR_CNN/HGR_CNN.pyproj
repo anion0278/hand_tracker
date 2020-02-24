@@ -26,7 +26,7 @@
     <Compile Include="dataset_generator.py" />
     <Compile Include="datatypes.py" />
     <Compile Include="HGR_CNN.py" />
-    <Compile Include="image_data_loader.py" />
+    <Compile Include="image_data_manager.py" />
     <Compile Include="predictor_facade.py" />
     <Compile Include="simple_recognizer.py" />
   </ItemGroup>

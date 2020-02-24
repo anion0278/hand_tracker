@@ -3,6 +3,7 @@ import numpy as np
 import cv2
 import os
 import datatypes
+import image_data_manager
 import simple_recognizer
 import sys
 from datetime import datetime
@@ -16,15 +17,6 @@ class DatasetGenerator:
         self.depth_max_calibration = depth_max
         self.record_when_no_hand = record_when_no_hand
         self.img_counter = 0 
-
-    def get_img_name(self, img_counter, tip_pos, is_hand_detected, gesture):
-        if not is_hand_detected: 
-            tip_pos = (0,0,0)
-            gesture = datatypes.Gesture.UNDEFINED
-        timestamp = datetime.now().strftime("%m-%d-%Y_%H#%M#%S")
-        is_hand_detected_binary = int(is_hand_detected * 1)
-        # TODO put counter of image to the end of name
-        return "rgbd_{}_X{}_Y{}_Z{}_hand{}_gest{}_date{}.png".format(img_counter, tip_pos[0], tip_pos[1], tip_pos[2], is_hand_detected_binary, gesture.value, timestamp)
 
     def overlay_text_on_img(self, image, text, y_pos):
         font = cv2.FONT_HERSHEY_SIMPLEX
@@ -44,7 +36,7 @@ class DatasetGenerator:
         index_tip_pos, is_hand_detected = simple_recognizer.recognize_finger_tip(color_image, depth_image)
         
         if self.record_when_no_hand or is_hand_detected:
-            img_name = self.get_img_name(self.img_counter, index_tip_pos, is_hand_detected, current_gesture)
+            img_name = image_data_manager.get_img_name(self.img_counter, index_tip_pos, is_hand_detected, current_gesture)
             img_path = os.path.join(self.dataset_path, img_name)
             cv2.imwrite(img_path, resized_img)
             self.img_counter += 1

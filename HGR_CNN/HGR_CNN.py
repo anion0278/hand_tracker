@@ -4,7 +4,7 @@ import sys
 import pyrealsense2 as rs
 import numpy as np
 import datatypes
-import image_data_loader as loader
+import image_data_manager as loader
 import dataset_generator as gen
 import cnn_model 
 import predictor_facade as predictor 
@@ -37,13 +37,13 @@ test_data_ratio = 0.05
 
 if __name__ == "__main__":
 
-    #sys.argv = [sys.argv[0], record_command]
-    sys.argv = [sys.argv[0], train_command]
+    sys.argv = [sys.argv[0], record_command]
+    #sys.argv = [sys.argv[0], train_command]
     #sys.argv = [sys.argv[0], predict_command, os.path.join(dataset_dir, "rgbd_7638_X0_Y0_Z0_hand0_gest0_date02-12-2020_14#55#42.png")]
     #sys.argv = [sys.argv[0], online_command]
     print(sys.argv) 
 
-    img_loader = loader.ImageDataLoader(current_script_path, dataset_dir, "rgbd", img_dataset_size, img_camera_size, depth_max)
+    img_loader = loader.ImageDataManager(current_script_path, dataset_dir, "rgbd", img_dataset_size, img_camera_size, depth_max)
     
     if (len(sys.argv) == 1):
         print("No arguments provided. See help (-h).")
