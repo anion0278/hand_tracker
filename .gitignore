@@ -252,3 +252,10 @@ ModelManifest.xml
 /HGR_CNN/img1_Color_Color.png
 /HGR_CNN/img2_Color.png
 /HGR_CNN/dataset_t
+/HGR_CNN/current_model _55k_Relu_depth_only.h5
+/HGR_CNN/current_model LeakyRelu should work but does not.h5
+/HGR_CNN/new_model_conv_with_relu_10epochs.h5
+/HGR_CNN/test.png
+/HGR_CNN/rgbd_6791_X261_Y175_Z356_hand1_gest1_date02-12-2020_14#41#54.png
+/HGR_CNN/rgbd_6791_X261_Y175_Z356_hand1_gest1_date02-12-2020_14#41#54 TTT.png
+/HGR_CNN/rgbd_6561_X240_Y47_Z221_hand1_gest1_date02-12-2020_14#41#47.png

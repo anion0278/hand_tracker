@@ -30,6 +30,21 @@ class OnlinePredictor:
         depth_image_filtered = (255 - 255.0 * depth_image_filtered).astype('uint8') 
         return cv2.merge((*cv2.split(color_image), depth_image_filtered))
         
+    def recognize_online(self, color_image, depth_image):
+        depth_channel = self.create_rgbd_img(color_image, depth_image)[:,:,3]
+        resized_img = cv2.resize(depth_channel, self.dataset_img_size).astype(np.float32)
+        resized_img = resized_img[..., np.newaxis]
+        index_tip_pos, is_hand_detected = simple_recognizer.recognize_finger_tip(color_image, depth_image)
+        
+        result = self.model.predict_single_image(resized_img, [0,0,0,0,0])
+        #result = np.clip(result, 0, 1)
+        result[0] *= self.camera_img_size[0]
+        result[1] *= self.camera_img_size[1]
+        result[2] *= self.depth_max_calibration
+        result = np.round(result).astype("int")
+        print("[X:%s; Y:%s; Z:%s; Hand:%s; Gesture:%s;]" % (result[0],result[1],result[2], result[3]== 1, result[4]))
+        return result
+
     def predict_online(self):
         window_name = "Online predictor"
         pipeline = rs.pipeline()
@@ -66,27 +81,7 @@ class OnlinePredictor:
                 # Stack both images horizontally
                 user_img = np.hstack((color_image, depth_colormap))
 
-                # recognition
-                depth_channel = self.create_rgbd_img(color_image, depth_image)[:,:,3]
-                resized_img = cv2.resize(depth_channel, self.dataset_img_size).astype(np.float32)
-                resized_img = resized_img[..., np.newaxis]
-                index_tip_pos, is_hand_detected = simple_recognizer.recognize_finger_tip(color_image, depth_image)
-
-                # test
-                img_name = os.path.join(dataset_dir, "rgbd_34_X8_Y327_Z533_hand1_gest1_date02-12-2020_14#38#08.png")
-                img = cv2.imread(img_name, cv2.IMREAD_UNCHANGED)
-                resized_img = cv2.resize(img, self.dataset_img_size).astype(np.float32)
-
-                result = self.model.predict_single_image(resized_img, [0,0,0,0,0])
-                result = np.clip(result, 0, 1)
-                result[0] *= self.camera_img_size[0]
-                result[1] *= self.camera_img_size[1]
-                result[2] *= self.depth_max_calibration
-                result = np.round(result).astype("int")
-                #result[3] = result[3] == 1
-                # Recognition end
-
-                print("[X:%s; Y:%s; Z:%s; Hand:%s; Gesture:%s;]" % (result[0],result[1],result[2], result[3]== 1, result[4]))
+                result = self.recognize_online(color_image, depth_image)
 
                 if is_hand_detected: 
                     self.overlay_circle_on_img(user_img, index_tip_pos)

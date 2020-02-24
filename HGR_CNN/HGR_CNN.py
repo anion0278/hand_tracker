@@ -39,8 +39,7 @@ if __name__ == "__main__":
 
     #sys.argv = [sys.argv[0], record_command]
     sys.argv = [sys.argv[0], train_command]
-    #rgbd_1_X0_Y0_Z0_hand0_gest0_date02-12-2020_14#38#07.png
-    #sys.argv = [sys.argv[0], predict_command, os.path.join(dataset_dir, "rgbd_6561_X240_Y47_Z221_hand1_gest1_date02-12-2020_14#41#47.png")]
+    #sys.argv = [sys.argv[0], predict_command, os.path.join(dataset_dir, "rgbd_7638_X0_Y0_Z0_hand0_gest0_date02-12-2020_14#55#42.png")]
     #sys.argv = [sys.argv[0], online_command]
     print(sys.argv) 
 
@@ -75,6 +74,8 @@ if __name__ == "__main__":
         print("Predicting: %s" % sys.argv[2])
         model = cnn_model.CnnModel(filters_count, learning_rate, img_dataset_size, os.path.join(current_script_path, model_name))
         X_predict, y_predict = img_loader.load_single_img(sys.argv[2])
+        #cv2.imwrite(os.path.join(current_script_path, "rgbd_6791_X261_Y175_Z356_hand1_gest1_date02-12-2020_14#41#54 TTT.png"), X_predict1)
+        #X_predict, y_predict = img_loader.load_single_img(os.path.join(current_script_path, "rgbd_6791_X261_Y175_Z356_hand1_gest1_date02-12-2020_14#41#54 TTT.png"))
         result = model.predict_single_image(X_predict, y_predict)
         
         print("Expected: %s - predicted: %s" % (y_predict, result))
