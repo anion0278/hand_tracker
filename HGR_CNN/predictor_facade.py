@@ -33,11 +33,18 @@ class OnlinePredictor:
     def recognize_online(self, color_image, depth_image):
         depth_channel = self.create_rgbd_img(color_image, depth_image)[:,:,3]
         resized_img = cv2.resize(depth_channel, self.dataset_img_size).astype(np.float32)
-        resized_img = np.array([resized_img[..., np.newaxis]])
+        resized_img = resized_img[..., np.newaxis]
         
-        result = self.model.model.predict(resized_img) * 255
-        cv2.imshow("Mask", np.squeeze(result))
-        cv2.waitKey(1)
+        result = self.model.predict_single_image(resized_img, [0,0,0,0,0])
+        #result = np.clip(result, 0, 1)
+        result[0] *= self.camera_img_size[0]
+        result[1] *= self.camera_img_size[1]
+        result[2] *= self.depth_max_calibration
+        result[3] = np.clip(result[3], 0, 1)
+        result[4] = np.clip(result[4], 0, 3)
+
+        result = np.round(result).astype("int")
+        print("[X:%s; Y:%s; Z:%s; Hand:%s; Gesture:%s;]" % (result[0],result[1],result[2], result[3]== 1, result[4]))
         return result
 
     def predict_online(self):
@@ -83,12 +90,15 @@ class OnlinePredictor:
                 if is_hand_detected: 
                     self.overlay_circle_on_img(user_img, index_tip_pos)
 
-                #self.overlay_text_on_img(user_img, "Tip position (Ground truth): %s" % str(index_tip_pos), y_pos = 50)       
-                #self.overlay_text_on_img(user_img, "Predicted tip position: %s" % str(result[0:3]) , y_pos = 80)       
+                if result[3]== 1: 
+                    self.overlay_circle_on_img(user_img, result[0:3], color = (0,255,255))
+
+                self.overlay_text_on_img(user_img, "Tip position (Ground truth): %s" % str(index_tip_pos), y_pos = 50)       
+                self.overlay_text_on_img(user_img, "Predicted tip position: %s" % str(result[0:3]) , y_pos = 80)       
                 
-                #gesture_name = datatypes.Gesture(result[4]).name
-                #self.overlay_text_on_img(user_img, "Predicted gesture (+status): %s (%s)" % (gesture_name, result[3]== 1), y_pos = 110)       
-                #self.overlay_text_on_img(user_img, "Press ESC to close...", y_pos = 450)   
+                gesture_name = datatypes.Gesture(result[4]).name
+                self.overlay_text_on_img(user_img, "Predicted gesture (+status): %s (%s)" % (gesture_name, result[3]== 1), y_pos = 110)       
+                self.overlay_text_on_img(user_img, "Press ESC to close...", y_pos = 450)   
                 cv2.imshow(window_name, user_img)
 
                 key = cv2.waitKey(1)

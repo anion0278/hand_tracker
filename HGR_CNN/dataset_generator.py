@@ -6,6 +6,8 @@ import datatypes
 import image_data_manager
 import simple_recognizer
 import sys
+from datetime import datetime
+
 
 class DatasetGenerator:
     def __init__(self, record_when_no_hand, dataset_path, camera_img_size, dataset_img_size, depth_max):
@@ -54,6 +56,7 @@ class DatasetGenerator:
         color_sensor.set_option(rs.option.enable_auto_exposure, False)
         color_sensor.set_option(rs.option.enable_auto_white_balance, False)
 
+        
         align_to = rs.stream.color
         align = rs.align(align_to)
 

@@ -2,8 +2,7 @@ import numpy as np
 import os
 import cv2
 import re
-import datatypes
-from datetime import datetime
+
 
 def get_img_name(img_counter, tip_pos, is_hand_detected, gesture):
     if not is_hand_detected: 
@@ -40,15 +39,6 @@ class ImageDataManager:
             y_train.append(y_expected)
         return np.array(X_train, dtype=np.float32), np.array(y_train, dtype=np.float32)
 
-    def get_encoder_data(self):
-        X_train = []
-        y_train = []
-        for train_img_path in self.__get_train_images_names_from_folder():
-            X_img_data, y_expected = self.load_image_pair(os.path.join(self.dataset_dir, train_img_path))
-            X_train.append(X_img_data)
-            y_train.append(y_expected)
-        return np.array(X_train, dtype=np.float32), np.array(y_train, dtype=np.float32)
-
     def __get_train_images_names_from_folder(self):
         return list(filter(lambda x: x.startswith(self.image_state_base) and len(x) > 15, os.listdir(self.dataset_dir)))
 
@@ -64,22 +54,15 @@ class ImageDataManager:
         result[2] /= self.depth_max
         return result
 
-    def load_image_pair(self, img_path):
-        depth_image = self.__load_resized(img_path)
-        params = self.parse_expected_value(os.path.basename(img_path))
-        mask_image =  np.zeros((self.image_target_size[1], self.image_target_size[0],1), np.float32)
-        params[0] *= self.image_target_size[0]
-        params[1] *= self.image_target_size[1]
-        if int(params[3]) is 1:
-            cv2.circle(mask_image, center = (int(params[0]), int(params[1])), radius = 1,  color = 255, thickness=3, lineType=8, shift=0) 
-        #cv2.imwrite("mask.png", mask_image)
-        #cv2.imwrite("orig.png", depth_image)
-        print("Loaded: " + os.path.basename(img_path))
-        return depth_image, mask_image
-
     def __load_resized(self, img_path):
         img = cv2.imread(img_path, cv2.IMREAD_UNCHANGED)
+        #try:
         resized = cv2.resize(img, self.image_target_size)[:,:,3].astype(np.float32)  # TODO check if cast is required
+        #except:
+        #    resized = cv2.resize(img,
+                                                                                           #    self.image_target_size).astype(np.float32) # TODO check if cast is
+                                                                                           #    required
+        #resized = np.array(depth_channel)
         return resized[..., np.newaxis]
 
 
