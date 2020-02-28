@@ -13,10 +13,10 @@ def recognize_finger_tip(color_image, depth_image):
     
     hsv = cv2.cvtColor(color_image,cv2.COLOR_BGR2HSV)
     mask = cv2.inRange(hsv, lower, upper)
-    cv2.imshow('Mask', mask)
-    key = cv2.waitKey(1)
-    if key == 27: 
-        raise KeyError
+    #cv2.imshow('Mask', mask)
+    #key = cv2.waitKey(1)
+    #if key == 27: 
+    #    raise KeyError
 
     try:
         _, contours, hierarchy_ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)

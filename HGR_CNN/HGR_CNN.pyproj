@@ -22,9 +22,18 @@
     <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="autoencoder_test.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="cnn_model.py" />
+    <Compile Include="convautoencoder.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="dataset_generator.py" />
     <Compile Include="datatypes.py" />
+    <Compile Include="fingertip_autoencoder.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="HGR_CNN.py" />
     <Compile Include="image_data_manager.py" />
     <Compile Include="predictor_facade.py" />

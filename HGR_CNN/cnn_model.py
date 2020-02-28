@@ -15,12 +15,18 @@ from tensorflow.keras.preprocessing.image import ImageDataGenerator
 from tensorflow.keras.optimizers import Adam, Adadelta
 from sklearn.model_selection import train_test_split
 
+
+
+def custom_loss(y_true, y_pred, coeff = 5):
+    return 5   ##you need to return this when you use in your code
+    #return K.eval(loss)
+
 class CnnModel:
     def __init__(self, conv_filters, learning_rate, image_sqr_size, existing_model_name=None):
         if (existing_model_name == None):
             self.model = self.__create_model(conv_filters, learning_rate, image_sqr_size)
         else:
-            self.model = tf.keras.models.load_model(existing_model_name)
+            self.model = tf.keras.models.load_model(existing_model_name, custom_objects={'custom_loss': custom_loss})
             self.setup_graph()
 
     def train(self, X_dataset, y_dataset, nb_epoch, batch_size, logs_path, test_data_ratio):
@@ -38,7 +44,7 @@ class CnnModel:
         # TODO make multistage training -> divide training into phases and save network after each phase
         #validation_split=0.20 - instead of splitting, but the data has to be
         #shuffled beforehand!
-        result = self.model.fit_generator(train_datagen.flow(X_train, y_train, batch_size=batch_size),
+        result = self.model.fit(train_datagen.flow(X_train, y_train, batch_size=batch_size),
                             #steps_per_epoch=40, # if not defined -> will train
                             #use exactly x_train.size/batch_size
                             epochs=nb_epoch,
@@ -50,6 +56,7 @@ class CnnModel:
         #self.show_history(result)
         self.setup_graph()
 
+    # TODO Implement
     #def show_history(self, result):
     #    # plot training curve for R^2 (beware of scale, starts very low negative)
     #    plt.plot(result.history['val_r_square'])
@@ -68,21 +75,31 @@ class CnnModel:
     #    plt.xlabel('epoch')
     #    plt.legend(['train', 'test'], loc='upper left')
     #    plt.show()
+#N = np.arange(0, EPOCHS)
+#plt.style.use("ggplot")
+#plt.figure()
+#plt.plot(N, H.history["loss"], label="train_loss")
+#plt.plot(N, H.history["val_loss"], label="val_loss")
+#plt.title("Training Loss and Accuracy")
+#plt.xlabel("Epoch #")
+#plt.ylabel("Loss/Accuracy")
+#plt.legend(loc="lower left")
+#plt.savefig(args["plot"])
 
-    def predict_single_image(self, X_img, y_expected):
+    def predict_single_image(self, X_img, y_expected): # TODO check if flow method really requires y_expected datas
         test_datagen = ImageDataGenerator(rescale=1. / 255) # TODO Exctract as common method for learning and prediction processes
         testData = test_datagen.flow(np.array([X_img]), np.array([y_expected]), batch_size=1)
-        with session.as_default():
-            with graph.as_default():
-                prediction = self.model.predict(testData)
+        #with session.as_default():
+        #    with graph.as_default():
+        prediction = self.model.predict(testData)
         return np.squeeze(prediction)
 
     def setup_graph(self):
         self.model._make_predict_function()
-        global session
-        session = tf.keras.backend.get_session()
-        global graph
-        graph = tf.get_default_graph()    
+        #global session
+        #session = tf.keras.backend.get_session()
+        #global graph
+        #graph = tf.get_default_graph()    
 
     def save(self, model_name):
         self.model.save(model_name)
