@@ -7,13 +7,15 @@ import datatypes
 import image_data_manager as loader
 import dataset_generator as gen
 import cnn_model 
-import predictor_facade as predictor 
+import predictor_facade as predictor
+import SimulationPredictor as spredictor
 from time import time
 
 record_command = "record"
 train_command = "train"
 predict_command = "predict"
 online_command = "online_prection"
+simulation_command = "simulation_prection"
 
 model_name = "current_model.h5"
 
@@ -28,6 +30,11 @@ img_camera_size = (640, 480)
 img_dataset_size = (160, 120)
 
 depth_max = float(1000) # millimeters
+depth_min = float(0)
+x_min = float(-400)
+x_max = float(400)
+y_min = float(-150)
+y_max = float(400)
 
 filters_count = 32
 learning_rate = 0.0005
@@ -37,10 +44,11 @@ test_data_ratio = 0.05
 
 if __name__ == "__main__":
 
-    sys.argv = [sys.argv[0], record_command]
+    #sys.argv = [sys.argv[0], record_command]
     #sys.argv = [sys.argv[0], train_command]
     #sys.argv = [sys.argv[0], predict_command, os.path.join(dataset_dir, "rgbd_7638_X0_Y0_Z0_hand0_gest0_date02-12-2020_14#55#42.png")]
     #sys.argv = [sys.argv[0], online_command]
+    sys.argv = [sys.argv[0], simulation_command]
     print(sys.argv) 
 
     img_loader = loader.ImageDataManager(current_script_path, dataset_dir, "rgbd", img_dataset_size, img_camera_size, depth_max)
@@ -84,4 +92,11 @@ if __name__ == "__main__":
         result[2] *= depth_max
         result = np.round(result).astype("int")
         print("[X:%s; Y:%s; Z:%s; Hand:%s; Gesture:%s;]" % (result[0],result[1],result[2], result[3] == 1, result[4]))
+        sys.exit(0)
+
+    if (sys.argv[1] == simulation_command):
+        print("Simulation prediction...")
+        model = cnn_model.CnnModel(filters_count, learning_rate, img_dataset_size, os.path.join(current_script_path, model_name))
+        spredict = spredictor.OnlinePredictor(model, img_camera_size, img_dataset_size, depth_max,depth_min,x_min,x_max,y_min,y_max)
+        spredict.predict_online()
         sys.exit(0)
