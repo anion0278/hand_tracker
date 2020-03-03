@@ -72,9 +72,9 @@ class CnnModel:
     def predict_single_image(self, X_img, y_expected):
         test_datagen = ImageDataGenerator(rescale=1. / 255) # TODO Exctract as common method for learning and prediction processes
         testData = test_datagen.flow(np.array([X_img]), np.array([y_expected]), batch_size=1)
-        with session.as_default():
-            with graph.as_default():
-                prediction = self.model.predict(testData)
+        #with session.as_default():
+            #with graph.as_default():
+        prediction = self.model.predict(testData)
         return np.squeeze(prediction)
 
     def setup_graph(self):

@@ -39,9 +39,15 @@ class SimulationPredictor:
         return result
 
     def predict_online(self):
+        
+        key = -1
 
-        predicted_pos = self.recognize_online()
+        try:
+            while key != 27:
+                predicted_pos = self.recognize_online()
 
-        pos = [predicted_pos[0]/1000,predicted_pos[1]/1000,predicted_pos[2]/1000]
-        self.copsim.setObjectPos(copsim.hand,pos)
+                pos = [predicted_pos[0]/1000,predicted_pos[1]/1000,predicted_pos[2]/1000]
+                self.copsim.SetObjectPos(self.copsim.sphere,pos)
+        except KeyError:
+            print("ESC pressed")
 
