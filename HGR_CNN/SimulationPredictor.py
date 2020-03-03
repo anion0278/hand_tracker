@@ -1,9 +1,11 @@
 import CoppeliaAPI
 import numpy as np
+import cv2
 
 class SimulationPredictor:
     def __init__(self,model, camera_img_size, dataset_img_size, depth_max,depth_min,x_min,x_max,y_min,y_max):
-        self.copsim = CoppeliaAPI()
+        self.copsim = CoppeliaAPI.CoppeliaAPI()
+        self.copsim.initSimulation()
         self.x_min = x_min
         self.x_max = x_max
         self.y_min = y_min
@@ -15,7 +17,7 @@ class SimulationPredictor:
         self.model = model
         self.x_range = abs(self.x_min)+x_max
         self.y_range = abs(self.y_min)+y_max
-        self.depth_range = abs(self.depth_min)+depth_max_calibration
+        self.depth_range = abs(self.depth_min) + self.depth_max_calibration
 
     def recognize_online(self):
         depth = self.copsim.GetImage()

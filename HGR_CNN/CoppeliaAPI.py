@@ -7,18 +7,19 @@ class CoppeliaAPI:
     def __init__(self):
         sim.simxFinish(-1)
         self.clientID = sim.simxStart('127.0.0.1',19999,True,True,5000,5)
-        if clientID!=-1:
+        if self.clientID!=-1:
             print ('Connected to remote API server')
         else:
             exit()
-        self.hand = GetObjectHandle("Hand",sim.simx_opmode_oneshot_wait)
-        self.vision = GetObjectHandle("Vision_sensor",sim.simx_opmode_oneshot_wait)
-        self.sphere = GetObjectHandle("Sphere",sim.simx_opmode_oneshot_wait)
-        img = GetImage(self.vision,sim.simx_opmode_streaming)
 
+    def initSimulation(self):
+        self.hand = self.GetObjectHandle('Hand')
+        self.vision = self.GetObjectHandle('Vision_sensor')
+        self.sphere = self.GetObjectHandle('Sphere')
+        err, resolution, image = sim.simxGetVisionSensorImage(self.clientID,self.vision, 0,sim.simx_opmode_blocking)
         time.sleep(0.05)
 
-    def GetImage():
+    def GetImage(self):
         err, resolution, image = sim.simxGetVisionSensorImage(self.clientID,self.vision, 0,sim.simx_opmode_blocking)
         if err == sim.simx_return_ok:
             img = np.array(image,dtype=np.uint8)
@@ -30,8 +31,8 @@ class CoppeliaAPI:
             print(err)
         return None
 
-    def GetObjectHandle(name,mode):
-        res,handle=sim.simxGetObjectHandle(self.clientID,name,mode)
+    def GetObjectHandle(self,name):
+        res,handle=sim.simxGetObjectHandle(self.clientID,name,sim.simx_opmode_oneshot_wait)
         if res==sim.simx_return_ok:
             print ('Handle '+name+' loaded')
             return handle
@@ -39,7 +40,7 @@ class CoppeliaAPI:
             print ('Remote API function call returned with error code: ',res)
             return None
         
-    def GetObjectPos(handle,mode):
+    def GetObjectPos(self,handle,mode):
         res,posp=sim.simxGetObjectPosition(self.clientID,handle,-1,mode)
         if res==sim.simx_return_ok:
             #print ('Position loaded:',posp)
@@ -48,7 +49,7 @@ class CoppeliaAPI:
             print ('Remote API function call returned with error code: ',res)
             return [0,0,0]
 
-    def SetObjectPos(handle,sposp):
+    def SetObjectPos(self,handle,sposp):
         res=sim.simxSetObjectPosition(self.clientID,handle,-1,sposp,sim.simx_opmode_blocking)
         if not res==sim.simx_return_ok:
             print ('SOP_Remote API function call returned with error code: ',res)

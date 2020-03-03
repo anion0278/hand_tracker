@@ -97,6 +97,6 @@ if __name__ == "__main__":
     if (sys.argv[1] == simulation_command):
         print("Simulation prediction...")
         model = cnn_model.CnnModel(filters_count, learning_rate, img_dataset_size, os.path.join(current_script_path, model_name))
-        spredict = spredictor.OnlinePredictor(model, img_camera_size, img_dataset_size, depth_max,depth_min,x_min,x_max,y_min,y_max)
+        spredict = spredictor.SimulationPredictor(model, img_camera_size, img_dataset_size, depth_max,depth_min,x_min,x_max,y_min,y_max)
         spredict.predict_online()
         sys.exit(0)

@@ -79,10 +79,10 @@ class CnnModel:
 
     def setup_graph(self):
         self.model._make_predict_function()
-        global session
-        session = tf.keras.backend.get_session()
-        global graph
-        graph = tf.get_default_graph()    
+        #global session
+        #session = tf.keras.backend.get_session()
+        #global graph
+        #graph = tf.get_default_graph()    
 
     def save(self, model_name):
         self.model.save(model_name)
