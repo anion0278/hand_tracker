@@ -22,6 +22,8 @@
     <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="sim.py" />
+    <Compile Include="simConst.py" />
     <Compile Include="SimulationPredictor.py">
       <SubType>Code</SubType>
     </Compile>
@@ -36,7 +38,9 @@
     <Compile Include="predictor_facade.py" />
     <Compile Include="simple_recognizer.py" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Content Include="remoteApi.dll" />
+  </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
   </PropertyGroup>
