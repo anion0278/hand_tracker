@@ -10,11 +10,11 @@ from datetime import datetime
 
 
 class DatasetGenerator:
-    def __init__(self, record_when_no_hand, dataset_path, camera_img_size, dataset_img_size, depth_max):
+    def __init__(self, record_when_no_hand, dataset_path, camera_img_size, dataset_img_size, xyz_ranges):
         self.dataset_path = dataset_path
         self.camera_img_size = camera_img_size
         self.dataset_img_size = dataset_img_size
-        self.depth_max_calibration = depth_max
+        self.depth_max_calibration = xyz_ranges[3][1]
         self.record_when_no_hand = record_when_no_hand
         self.img_counter = 0 
 

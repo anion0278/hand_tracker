@@ -14,15 +14,14 @@ def get_img_name(img_counter, tip_pos, is_hand_detected, gesture):
     return "rgbd_{}_X{}_Y{}_Z{}_hand{}_gest{}_date{}.png".format(img_counter, tip_pos[0], tip_pos[1], tip_pos[2], is_hand_detected_binary, gesture.value, timestamp)
 
 class ImageDataManager:
-    def __init__(self, main_script_path, dataset_dir, image_state_base, image_target_size, image_camera_size, depth_max):
+    def __init__(self, main_script_path, dataset_dir, image_state_base, image_target_size, xyz_ranges):
         self.image_state_base = image_state_base
         self.main_script_path = main_script_path
         self.dataset_dir = dataset_dir
         self.image_target_size = image_target_size
-        self.image_camera_size = image_camera_size
-        self.depth_max = depth_max
+        self.xyz_ranges = xyz_ranges
 
-    def load_single_img(self, img_relative_path):
+    def load_single_img(self, img_relative_path, ):
         img_path = os.path.join(self.main_script_path, img_relative_path)
         print("Loading image from %s ..." % img_path)
         X_img_data = self.__load_resized(img_path)
@@ -45,31 +44,35 @@ class ImageDataManager:
     def parse_expected_value(self, img_name):
         result = []
         # TODO counter of image should be in the end of name
-        regex_name_match = re.search('.*' + self.image_state_base + '_\d+_X(\d+)_Y(\d+)_Z(\d+)_hand(.+)_gest(\d+)_date', img_name)
-        for fingerIndex in range(0,5):
-            y_value = int(regex_name_match.group(fingerIndex + 1))
+        float_val_group = "(-?\d+(?:.\d+)?)"
+        regex_name_match = re.search('.*' + self.image_state_base + f'_\d+_X{float_val_group}_Y{float_val_group}_Z{float_val_group}_hand(.+)_gest(\d+)_date', img_name)
+        for i in range(0,5):
+            y_value = float(regex_name_match.group(i + 1))
             result.append(y_value)
-        result[0] /= self.image_camera_size[0]
-        result[1] /= self.image_camera_size[1]
-        result[2] /= self.depth_max
+        for i in range(0,3):  
+            result[i] =  (result[i] + abs(self.xyz_ranges[i][0]))  / (abs(self.xyz_ranges[i][0]) +  self.xyz_ranges[i][1])
+       
         return result
 
     def __load_resized(self, img_path):
-        img = cv2.imread(img_path, cv2.IMREAD_UNCHANGED)
-        #try:
-        resized = cv2.resize(img, self.image_target_size)[:,:,3].astype(np.float32)  # TODO check if cast is required
-        #except:
-        #    resized = cv2.resize(img,
-                                                                                           #    self.image_target_size).astype(np.float32) # TODO check if cast is
-                                                                                           #    required
-        #resized = np.array(depth_channel)
-        return resized[..., np.newaxis]
+        img = cv2.imread(img_path, cv2.IMREAD_GRAYSCALE)
+        #resized = cv2.resize(img, self.image_target_size)[:,:,3].astype(np.float32)  # TODO check if cast is required
+        img = cv2.rotate(img, 0)
+        img = cv2.resize(img,self.image_target_size).astype(np.float32)
+        #cv2.imwrite("test-rot.png", img)
+
+        return img[..., np.newaxis]
 
 
 # TODO unit test
 if __name__ == "__main__":
-    test_instance = ImageDataManager("", "", "rgbd", (3,3))
+    #test_instance = ImageDataManager("", "", "rgbd", (1,1), xyz_ranges)
+    #result = test_instance.parse_expected_value("rgbd_1_X-100.2_Y-200.12_Z300.12_hand1_gest2_date02-12-2020_10#34#14")
+    #expected_result = [-100.2, -200.12, 300.12, 1, 2]
+    #assert result == expected_result
 
-    result = test_instance.parse_expected_value("rgbd_1_X100_Y200_Z300_hand1_gest2_date02-12-2020_10#34#14")
-    expected_result = [100, 200, 300, 1, 2]
+    xyz_ranges = [(-700, 700), (-600, 500), (0, 1000)]
+    test_instance = ImageDataManager("", "", "rgbd", (1,1),  [(-700, 700), (-600, 500), (0, 1000)])
+    result = test_instance.parse_expected_value("rgbd_1_X0_Y-50_Z500_hand1_gest2_date02-12-2020_10#34#14")
+    expected_result = [0.5, 0.5, 0.5, 1, 2]
     assert result == expected_result

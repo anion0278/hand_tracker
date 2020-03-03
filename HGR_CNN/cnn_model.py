@@ -6,7 +6,6 @@ import numpy as np
 import tensorflow as tf
 import matplotlib.pyplot as plt    
 
-
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Dense, Conv2D, Flatten, MaxPooling2D, BatchNormalization, Dropout, Activation, LeakyReLU, ReLU
 from tensorflow.keras.optimizers import Adam, Adadelta
@@ -38,7 +37,7 @@ class CnnModel:
         # TODO make multistage training -> divide training into phases and save network after each phase
         #validation_split=0.20 - instead of splitting, but the data has to be
         #shuffled beforehand!
-        result = self.model.fit_generator(train_datagen.flow(X_train, y_train, batch_size=batch_size),
+        result = self.model.fit(train_datagen.flow(X_train, y_train, batch_size=batch_size),
                             #steps_per_epoch=40, # if not defined -> will train
                             #use exactly x_train.size/batch_size
                             epochs=nb_epoch,
@@ -49,6 +48,8 @@ class CnnModel:
                             callbacks=[tensorboard])
         #self.show_history(result)
         self.setup_graph()
+        #self.model.reset_metrics()
+
 
     #def show_history(self, result):
     #    # plot training curve for R^2 (beware of scale, starts very low negative)
@@ -72,25 +73,21 @@ class CnnModel:
     def predict_single_image(self, X_img, y_expected):
         test_datagen = ImageDataGenerator(rescale=1. / 255) # TODO Exctract as common method for learning and prediction processes
         testData = test_datagen.flow(np.array([X_img]), np.array([y_expected]), batch_size=1)
-        with session.as_default():
-            with graph.as_default():
-                prediction = self.model.predict(testData)
+        #with session.as_default():
+        #    with graph.as_default():
+        prediction = self.model.predict(testData)
         return np.squeeze(prediction)
 
     def setup_graph(self):
         self.model._make_predict_function()
-        global session
-        session = tf.keras.backend.get_session()
-        global graph
-        graph = tf.get_default_graph()    
+        #global session
+        #session = tf.keras.backend.get_session()
+        #global graph
+        #graph = tf.get_default_graph()    
 
     def save(self, model_name):
         self.model.save(model_name)
         print("Model saved: %s" % model_name) 
-
-    def rmse(y_true, y_pred):
-        import tf.keras.backend
-        return backend.sqrt(backend.mean(backend.square(y_pred - y_true), axis=-1))
 
     def __create_model(self, conv_filters, learning_rate, image_size):
         conv_kernel = (3, 3)
@@ -100,14 +97,16 @@ class CnnModel:
 
         model = Sequential()
 
-        model.add(Conv2D(conv_filters, kernel_size=conv_kernel, use_bias=False, input_shape=input_shape))
+        # TODO add conv layers in cycle 
+
+        model.add(Conv2D(conv_filters, kernel_size=conv_kernel, use_bias=False, input_shape=input_shape)) # use_bias=False is important because of BN!
         model.add(BatchNormalization()) # axis should be set to Channels (w, h, ch), default is -1 (the last dimension)
-        model.add(MaxPooling2D(pool_size=pooling_kernel))
+        model.add(MaxPooling2D(pool_size=pooling_kernel)) # TODO after or before BN ? test
         model.add(Activation(activation_function))
         # No dropout for conv layers, because Dropout should not be used before ANY Batch Norm
 
         model.add(Conv2D(conv_filters, kernel_size=conv_kernel, use_bias=False)) # TODO add padding='SAME'
-        model.add(BatchNormalization()) # Normalization after Conv layer, but can be after ReLU (compare?)
+        model.add(BatchNormalization()) # Normalization after Conv layer, but before Activation (non-linearity) !!
         model.add(MaxPooling2D(pool_size=pooling_kernel))
         model.add(Activation(activation_function))
 
@@ -129,10 +128,12 @@ class CnnModel:
         model.add(Flatten())
         model.add(Dense(image_size[0] * image_size[1] * 2))
         model.add(Dropout(0.5)) # Fraction of the input units to drop(!). droupout should be after normalization. 
+        # dropout layer can lead to train error lower than during validation!
 
         model.add(Dense(5, activation="linear")) 
 
         opt = Adam(learning_rate=learning_rate)
 
         model.compile(loss="mean_absolute_error", optimizer=opt, metrics=['mse'])
+        model.summary()
         return model
