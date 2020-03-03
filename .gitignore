@@ -251,3 +251,7 @@ ModelManifest.xml
 /HGR_CNN/__pycache__
 /HGR_CNN/img1_Color_Color.png
 /HGR_CNN/img2_Color.png
+/HGR_CNN/dataset_old
+/HGR_CNN/dataset_r
+/HGR_CNN/dataset.zip
+/HGR_CNN/autoencoder_model.h5
