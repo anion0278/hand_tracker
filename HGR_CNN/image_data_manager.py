@@ -21,7 +21,8 @@ class ImageDataManager:
         self.image_target_size = image_target_size
         self.xyz_ranges = xyz_ranges
 
-    def load_single_img(self, img_relative_path, ):
+
+    def load_single_img(self, img_relative_path):
         img_path = os.path.join(self.main_script_path, img_relative_path)
         print("Loading image from %s ..." % img_path)
         X_img_data = self.__load_resized(img_path)
