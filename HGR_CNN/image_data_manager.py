@@ -59,8 +59,9 @@ class ImageDataManager:
         img = cv2.imread(img_path, cv2.IMREAD_GRAYSCALE)
         #resized = cv2.resize(img, self.image_target_size)[:,:,3].astype(np.float32)  # TODO check if cast is required
         img = cv2.rotate(img, 0)
-        img = cv2.resize(img,self.image_target_size).astype(np.float32)
-        #cv2.imwrite("test-rot.png", img)
+        img = cv2.resize(img,self.image_target_size).astype(np.float32) # TODO put all type transformations into single place
+        #TODO allow to define lower size of float values -> for instance, float16
+        #cv2.imwrite("test-rot.png", img) 
 
         return img[..., np.newaxis]
 
