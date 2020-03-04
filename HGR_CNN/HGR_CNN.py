@@ -21,7 +21,7 @@ model_name = "current_model.h5"
 
 current_script_path = os.path.dirname(os.path.realpath(__file__))
 logs_dir = os.path.join(current_script_path, "logs", format(time()))
-dataset_dir = os.path.join(current_script_path, "dataset")
+dataset_dir = os.path.join(current_script_path, os.pardir, "dataset") # pardir - parent dir (one lvl up)
 
 record_when_no_hand = False
 recorded_gesture = datatypes.Gesture.POINTING
@@ -40,9 +40,9 @@ test_data_ratio = 0.2
 if __name__ == "__main__":
 
     #sys.argv = [sys.argv[0], record_command]
-    #sys.argv = [sys.argv[0], train_command]
+    sys.argv = [sys.argv[0], train_command]
     #sys.argv = [sys.argv[0], predict_command, os.path.join(dataset_dir, "depth_72030_X-140.6_Y-139.0_Z570.3_hand1_gest1_date02-26-2020_16#46#09.png")]
-    sys.argv = [sys.argv[0], predict_command, "depth_72026_X-100.2_Y-142.3_Z567.5_hand1_gest1_date02-26-2020_16#46#08_t.png"]
+    #sys.argv = [sys.argv[0], predict_command, "depth_72026_X-100.2_Y-142.3_Z567.5_hand1_gest1_date02-26-2020_16#46#08_t.png"]
     #sys.argv = [sys.argv[0], online_command]
     print(sys.argv) 
 
