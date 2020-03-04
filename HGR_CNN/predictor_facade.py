@@ -34,7 +34,7 @@ class OnlinePredictor:
         depth_channel = self.create_rgbd_img(color_image, depth_image)[:,:,3]
         resized_img = cv2.resize(depth_channel, self.dataset_img_size).astype(np.float32)
         resized_img = resized_img[..., np.newaxis]
-        
+        cv2.imwrite("stefan.jpg",resized_img)
         result = self.model.predict_single_image(resized_img, [0,0,0,0,0])
         #result = np.clip(result, 0, 1)
         result[0] *= self.camera_img_size[0]
