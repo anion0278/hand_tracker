@@ -31,7 +31,7 @@ record_when_no_hand = False
 recorded_gesture = datatypes.Gesture.POINTING
 
 img_camera_size = (640, 480) 
-img_dataset_size = (160, 120)
+img_dataset_size = (320, 240)
 
 xyz_ranges = [(-700, 700), (-600, 500), (0, 1000)]
 depth_max = float(1000) # millimeters
@@ -41,18 +41,18 @@ x_max = float(400)
 y_min = float(-150)
 y_max = float(400)
 
-filters_count = 32
+filters_count = 64
 learning_rate = 0.0008 # use high values because we have BatchNorm and Dropout
-batch_size = 100
+batch_size = 15
 epochs_count = 50
 test_data_ratio = 0.2
 
 if __name__ == "__main__":
 
     #sys.argv = [sys.argv[0], record_command]
-    #sys.argv = [sys.argv[0], train_command] 
+    sys.argv = [sys.argv[0], train_command] 
     #sys.argv = [sys.argv[0], continue_train] 
-    sys.argv = [sys.argv[0], predict_command, os.path.join(dataset_dir, "depth_77_X356.4_Y-342.1_Z414.0_hand1_gest1_date03-02-2020_15-33-02.png")]
+    #sys.argv = [sys.argv[0], predict_command, os.path.join(dataset_dir, "depth_77_X356.4_Y-342.1_Z414.0_hand1_gest1_date03-02-2020_15-33-02.png")]
     #sys.argv = [sys.argv[0], predict_command, "depth_72026_X-100.2_Y-142.3_Z567.5_hand1_gest1_date02-26-2020_16#46#08_t.png"]
     #sys.argv = [sys.argv[0], online_command]
     #sys.argv = [sys.argv[0], simulation_command]

@@ -127,7 +127,7 @@ class CnnModel:
         model.add(Activation(activation_function))
 
         model.add(Flatten())
-        model.add(Dense(image_size[0] * image_size[1] * 2))
+        model.add(Dense(image_size[0] * image_size[1]))
         model.add(Dropout(0.5)) # Fraction of the input units to drop(!). droupout should be after normalization. 
 
         model.add(Dense(5, activation="linear")) 
