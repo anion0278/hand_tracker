@@ -36,10 +36,10 @@ img_dataset_size = (160, 120)
 xyz_ranges = [(-700, 700), (-600, 500), (0, 1000)]
 depth_max = float(1000) # millimeters
 depth_min = float(0)
-x_min = float(-400)
-x_max = float(400)
-y_min = float(-150)
-y_max = float(400)
+x_min = float(-700)
+x_max = float(700)
+y_min = float(-600)
+y_max = float(500)
 
 filters_count = 32
 learning_rate = 0.0008 # use high values because we have BatchNorm and Dropout
@@ -52,10 +52,10 @@ if __name__ == "__main__":
     #sys.argv = [sys.argv[0], record_command]
     #sys.argv = [sys.argv[0], train_command] 
     #sys.argv = [sys.argv[0], continue_train] 
-    sys.argv = [sys.argv[0], predict_command, os.path.join(dataset_dir, "depth_77_X356.4_Y-342.1_Z414.0_hand1_gest1_date03-02-2020_15-33-02.png")]
-    #sys.argv = [sys.argv[0], predict_command, "depth_72026_X-100.2_Y-142.3_Z567.5_hand1_gest1_date02-26-2020_16#46#08_t.png"]
+    #sys.argv = [sys.argv[0], predict_command, os.path.join(dataset_dir, "depth_77_X356.4_Y-342.1_Z414.0_hand1_gest1_date03-02-2020_15-33-02.png")]
+    #sys.argv = [sys.argv[0], predict_command, "depth_77_X356.4_Y-342.1_Z414.0_hand1_gest1_date03-02-2020_15-33-02.jpg"]
     #sys.argv = [sys.argv[0], online_command]
-    #sys.argv = [sys.argv[0], simulation_command]
+    sys.argv = [sys.argv[0], simulation_command]
     print(sys.argv) 
 
     img_loader = loader.ImageDataManager(current_script_path, dataset_dir, "depth", img_dataset_size, xyz_ranges)
@@ -113,6 +113,6 @@ if __name__ == "__main__":
     if (sys.argv[1] == simulation_command):
         print("Simulation prediction...")
         model = cnn_model.CnnModel(filters_count, learning_rate, img_dataset_size, os.path.join(models_dir, model_name))
-        spredict = spredictor.SimulationPredictor(model, img_camera_size, img_dataset_size, depth_max,depth_min,x_min,x_max,y_min,y_max)
+        spredict = spredictor.SimulationPredictor(model, img_camera_size, img_dataset_size, depth_max,depth_min,x_min,x_max,y_min,y_max, xyz_ranges)
         spredict.predict_online()
         sys.exit(0)
