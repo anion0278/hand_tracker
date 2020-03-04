@@ -277,6 +277,7 @@ ModelManifest.xml
 /HGR_CNN/dataset.zip
 /HGR_CNN/autoencoder_model.h5
 /HGR_CNN/new_model.h5
+/HGR_CNN/current_model.h5
 /HGR_CNN/depth_34_X353.0_Y68.5_Z407.4_hand1_gest1_date02-28-2020_14#01#02.png
 /HGR_CNN/depth_33_X236.7_Y68.9_Z404.7_hand1_gest1_date02-28-2020_14#01#01.png
 /HGR_CNN/depth_32_X109.2_Y68.0_Z405.5_hand1_gest1_date02-28-2020_14#01#01.png
@@ -300,3 +301,4 @@ ModelManifest.xml
 /dataset_test
 /dataset_old
 /dataset
+/HGR_CNN/models

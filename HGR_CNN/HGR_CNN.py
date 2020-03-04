@@ -77,7 +77,7 @@ if __name__ == "__main__":
 
     if (sys.argv[1] == online_command):
         print("Online prediction...")
-        model = cnn_model.CnnModel(filters_count, learning_rate, img_dataset_size, os.path.join(current_script_path, model_name))
+        model = cnn_model.CnnModel(filters_count, learning_rate, img_dataset_size, os.path.join(current_script_path, "models", model_name))
         predict = predictor.OnlinePredictor(model, img_camera_size, img_dataset_size, xyz_ranges)
         predict.predict_online()
         sys.exit(0)
@@ -85,7 +85,7 @@ if __name__ == "__main__":
     if (sys.argv[1] == predict_command and not(sys.argv[2].isspace())):
         print("Predicting: %s" % sys.argv[2])
         tf.config.set_visible_devices([], 'GPU') #  faster for prediction (2x), or loading?
-        model = cnn_model.CnnModel(filters_count, learning_rate, img_dataset_size, os.path.join(current_script_path, model_name))
+        model = cnn_model.CnnModel(filters_count, learning_rate, img_dataset_size, os.path.join(current_script_path, "models", model_name))
         X_predict, y_predict = img_loader.load_single_img(sys.argv[2])
         #cv2.imwrite(os.path.join(current_script_path, "rgbd_6791_X261_Y175_Z356_hand1_gest1_date02-12-2020_14#41#54 TTT.png"), X_predict1)
         #X_predict, y_predict = img_loader.load_single_img(os.path.join(current_script_path, "rgbd_6791_X261_Y175_Z356_hand1_gest1_date02-12-2020_14#41#54 TTT.png"))
@@ -100,7 +100,7 @@ if __name__ == "__main__":
 
     if (sys.argv[1] == simulation_command):
         print("Simulation prediction...")
-        model = cnn_model.CnnModel(filters_count, learning_rate, img_dataset_size, os.path.join(current_script_path, model_name))
+        model = cnn_model.CnnModel(filters_count, learning_rate, img_dataset_size, os.path.join(current_script_path, "models", model_name))
         spredict = spredictor.SimulationPredictor(model, img_camera_size, img_dataset_size, depth_max,depth_min,x_min,x_max,y_min,y_max)
         spredict.predict_online()
         sys.exit(0)
