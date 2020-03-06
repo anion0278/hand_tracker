@@ -4,16 +4,24 @@
 import os
 import numpy as np
 import tensorflow as tf
-import matplotlib.pyplot as plt    
-
-
+import tensorflow.keras.backend as K
+import matplotlib.pyplot as plt  
+import datetime  
 from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import Dense, Conv2D, Flatten, MaxPooling2D, BatchNormalization, Dropout, Activation, LeakyReLU, ReLU
+from tensorflow.keras.layers import Dense, Conv2D, Flatten, MaxPooling2D, BatchNormalization, Dropout, Activation, LeakyReLU, ReLU, Input
 from tensorflow.keras.optimizers import Adam, Adadelta
 from tensorflow.keras.callbacks import TensorBoard
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
 from tensorflow.keras.optimizers import Adam, Adadelta
 from sklearn.model_selection import train_test_split
+
+class LearningRateCallback(tf.keras.callbacks.Callback):
+    # can be used to print/collect/inspect some infoduring training
+    def on_epoch_end(self, epoch, logs=None):
+        lr = self.model.optimizer.lr
+        lr = float(K.get_value(self.model.optimizer.lr))
+        decay = float(K.get_value(self.model.optimizer.decay))
+        tf.summary.scalar('learning_rate', data=lr, step=epoch)
 
 class CnnModel:
     def __init__(self, conv_filters, learning_rate, image_sqr_size, existing_model_name=None):
@@ -36,38 +44,21 @@ class CnnModel:
 
         tensorboard = TensorBoard(log_dir=logs_path)
         # TODO make multistage training -> divide training into phases and save network after each phase
-        #validation_split=0.20 - instead of splitting, but the data has to be
-        #shuffled beforehand!
-        result = self.model.fit_generator(train_datagen.flow(X_train, y_train, batch_size=batch_size),
-                            #steps_per_epoch=40, # if not defined -> will train
-                            #use exactly x_train.size/batch_size
-                            epochs=nb_epoch,
-                            validation_data=test_datagen.flow(X_test, y_test, batch_size=batch_size),
-                            #validation_steps=20, # if not defined -> fill run
-                            #all valid data once
-                            verbose=1,
-                            callbacks=[tensorboard])
-        #self.show_history(result)
+        #validation_split=0.20 - instead of splitting, but the data has to be shuffled beforehand!
+        try:
+            result = self.model.fit(train_datagen.flow(X_train, y_train, batch_size=batch_size),
+                                #steps_per_epoch=40, # if not defined -> will train
+                                #use exactly x_train.size/batch_size
+                                epochs=nb_epoch,
+                                validation_data=test_datagen.flow(X_test, y_test, batch_size=batch_size),
+                                #validation_steps=20, # if not defined -> fill run
+                                #all valid data once
+                                verbose=1,
+                                callbacks=[tensorboard, LearningRateCallback()])
+        except KeyboardInterrupt:
+            #self.model.save("interrupted_model.h5")
+            pass # will just continue on saving 
         self.setup_graph()
-
-    #def show_history(self, result):
-    #    # plot training curve for R^2 (beware of scale, starts very low negative)
-    #    plt.plot(result.history['val_r_square'])
-    #    plt.plot(result.history['r_square'])
-    #    plt.title('model R^2')
-    #    plt.ylabel('R^2')
-    #    plt.xlabel('epoch')
-    #    plt.legend(['train', 'test'], loc='upper left')
-    #    plt.show()
-           
-    #    # plot training curve for rmse
-    #    plt.plot(result.history['rmse'])
-    #    plt.plot(result.history['val_rmse'])
-    #    plt.title('rmse')
-    #    plt.ylabel('rmse')
-    #    plt.xlabel('epoch')
-    #    plt.legend(['train', 'test'], loc='upper left')
-    #    plt.show()
 
     def predict_single_image(self, X_img, y_expected):
         test_datagen = ImageDataGenerator(rescale=1. / 255) # TODO Exctract as common method for learning and prediction processes
@@ -78,7 +69,8 @@ class CnnModel:
         return np.squeeze(prediction)
 
     def setup_graph(self):
-        self.model._make_predict_function()
+        pass
+        #self.model._make_predict_function()
         #global session
         #session = tf.keras.backend.get_session()
         #global graph
@@ -92,42 +84,35 @@ class CnnModel:
         import tf.keras.backend
         return backend.sqrt(backend.mean(backend.square(y_pred - y_true), axis=-1))
 
+    def add_conv_layer(self, model, conv_filters, conv_kernel, pooling_kernel, activation_function, name):
+        # Kernel size should be odd number
+        # should be a method of ModelBuilder
+        model.add(Conv2D(conv_filters, kernel_size=conv_kernel, use_bias=False, padding='same', name=name, kernel_initializer = 'he_normal')) 
+        # He initialization is recommended for ReLU
+        model.add(BatchNormalization()) # Normalization after Conv layer (ResNet Keras)
+        # axis should be set to Channels (w, h, ch), default is -1 (the last dimension)
+        model.add(Activation(activation_function))
+        model.add(Conv2D(int(conv_filters / 2), kernel_size=(1,1), use_bias=False, padding='same', name=name +"-1x1", kernel_initializer = 'he_normal')) 
+        # 1x1 conv with 1/2 filters for dimensionality reduction
+        model.add(BatchNormalization()) 
+        model.add(Activation(activation_function))
+        model.add(MaxPooling2D(pool_size=pooling_kernel, padding='same'))
+        # No dropout for conv layers, because Dropout should not be used before ANY Batch Norm
+
     def __create_model(self, conv_filters, learning_rate, image_size):
-        conv_kernel = (3, 3)
+        activation_function = LeakyReLU()
         pooling_kernel = (2, 2)
-        activation_function = "relu"
         input_shape = (image_size[1], image_size[0], 1)
 
         model = Sequential()
-
-        model.add(Conv2D(conv_filters, kernel_size=conv_kernel, use_bias=False, input_shape=input_shape))
-        model.add(BatchNormalization()) # axis should be set to Channels (w, h, ch), default is -1 (the last dimension)
-        model.add(MaxPooling2D(pool_size=pooling_kernel))
-        model.add(Activation(activation_function))
-        # No dropout for conv layers, because Dropout should not be used before ANY Batch Norm
-
-        model.add(Conv2D(conv_filters, kernel_size=conv_kernel, use_bias=False)) # TODO add padding='SAME'
-        model.add(BatchNormalization()) # Normalization after Conv layer, but can be after ReLU (compare?)
-        model.add(MaxPooling2D(pool_size=pooling_kernel))
-        model.add(Activation(activation_function))
-
-        model.add(Conv2D(conv_filters * 2, kernel_size=conv_kernel, use_bias=False))
-        model.add(BatchNormalization())
-        model.add(MaxPooling2D(pool_size=pooling_kernel))
-        model.add(Activation(activation_function))
-
-        model.add(Conv2D(conv_filters * 2, kernel_size=conv_kernel, use_bias=False))
-        model.add(BatchNormalization())
-        model.add(MaxPooling2D(pool_size=pooling_kernel))
-        model.add(Activation(activation_function))
-
-        model.add(Conv2D(conv_filters * 2, kernel_size=conv_kernel, use_bias=False)) 
-        model.add(BatchNormalization()) 
-        model.add(MaxPooling2D(pool_size=pooling_kernel))
-        model.add(Activation(activation_function))
+        model.add(Input(shape=input_shape))
+    
+        self.add_conv_layer(model,conv_filters, (5, 5), pooling_kernel, activation_function, name="ConvInput")
+        for i in range(2, 5):
+            self.add_conv_layer(model, conv_filters * i, (3, 3), pooling_kernel, activation_function, name=f"Conv{i}")
 
         model.add(Flatten())
-        model.add(Dense(image_size[0] * image_size[1]))
+        model.add(Dense(image_size[0] * image_size[1] / 10)) # just to fit model into GPU
         model.add(Dropout(0.5)) # Fraction of the input units to drop(!). droupout should be after normalization. 
 
         model.add(Dense(5, activation="linear")) 
@@ -135,4 +120,5 @@ class CnnModel:
         opt = Adam(learning_rate=learning_rate)
 
         model.compile(loss="mean_absolute_error", optimizer=opt, metrics=['mse'])
+        model.summary()
         return model
