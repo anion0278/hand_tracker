@@ -8,14 +8,14 @@ from tensorflow.keras.optimizers import *
 import cv2
 import os
 from sklearn.model_selection import train_test_split
-#from convautoencoder import ConvAutoencoder
-from autoencoder_model import ConvAutoencoder
+from convautoencoder import ConvAutoencoder
+#from autoencoder_model import ConvAutoencoder
 
 EPOCHS = 5
 BS = 32
 
 current_script_path = os.path.dirname(os.path.realpath(__file__))
-dataset_dir = os.path.join(current_script_path, os.pardir, "dataset_test")
+dataset_dir = os.path.join(current_script_path, os.pardir, "dataset")
 
 xyz_ranges = [(-700, 700), (-600, 500), (0, 1000)]
 img_dataset_size = (320, 240)
