@@ -27,7 +27,7 @@ model_name = "current_model.h5"
 
 filters_count = 32
 learning_rate = 0.0005 # use high values because we have BatchNorm and Dropout
-batch_size = 50
+batch_size = 32
 epochs_count = 20
 test_data_ratio = 0.2
 
@@ -55,7 +55,7 @@ y_max = float(500)
 if __name__ == "__main__":
 
     #sys.argv = [sys.argv[0], record_command]
-    sys.argv = [sys.argv[0], train_command] 
+    #sys.argv = [sys.argv[0], train_command] 
     #sys.argv = [sys.argv[0], continue_train] 
     #sys.argv = [sys.argv[0], predict_command, os.path.join(dataset_dir, "depth_77_X356.4_Y-342.1_Z414.0_hand1_gest1_date03-02-2020_15-33-02.png")]
     #sys.argv = [sys.argv[0], predict_command, "depth_77_X356.4_Y-342.1_Z414.0_hand1_gest1_date03-02-2020_15-33-02.jpg"]
@@ -73,6 +73,11 @@ if __name__ == "__main__":
         print("Dataset recording...")
         recorder = gen.DatasetGenerator(record_when_no_hand, dataset_dir, img_camera_size, img_dataset_size, xyz_ranges)
         recorder.record_data(recorded_gesture)
+        sys.exit(0)
+
+    if (sys.argv[1] == "tb"): #start tensorboard
+        print("Starting tensorboard...")
+        os.system('tensorboard --logdir='+os.path.join(current_script_path, "logs"))
         sys.exit(0)
 
     if (sys.argv[1] == train_command):
@@ -101,6 +106,7 @@ if __name__ == "__main__":
 
     if (sys.argv[1] == predict_command and not(sys.argv[2].isspace())):
         print("Predicting: %s" % sys.argv[2])
+        tf.config.list_physical_devices('GPU') #check for gpu
         tf.config.set_visible_devices([], 'GPU') #  faster for prediction (2x), or loading?
         model = cnn_model.CnnModel(filters_count, learning_rate, img_dataset_size, os.path.join(models_dir, model_name))
         X_predict, y_predict = img_loader.load_single_img(sys.argv[2])

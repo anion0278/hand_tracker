@@ -25,15 +25,13 @@ class SimulationPredictor:
         #depth =  np.clip(depth, 0, self.depth_max_calibration) / self.depth_max_calibration
         #depth = (255 - 255.0 * depth).astype('uint8')
         #cv2.imwrite(str(int(3)) + ".jpg", depth)
-        #img = cv2.rotate(depth, 0)
         resized_img = cv2.resize(depth, self.dataset_img_size).astype(np.float32)
         resized_img = resized_img[..., np.newaxis]
         result = self.model.predict_single_image(resized_img, [0,0,0,0,0])
 
-        #result = np.clip(result, 0, 1)
         for i in range(0,3):  
             result[i] = result[i] *  (abs(self.xyz_ranges[i][0]) +  self.xyz_ranges[i][1]) - abs(self.xyz_ranges[i][0])
-        result[3] = np.clip(result[3], 0, 1)    #TODO
+        result[3] = np.clip(result[3], 0, 1)    
         result[4] = np.clip(result[4], 0, 3)
         
         result = np.round(result).astype("int")

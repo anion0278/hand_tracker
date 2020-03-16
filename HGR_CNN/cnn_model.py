@@ -3,16 +3,16 @@
 # -*- coding: utf-8 -*-
 import os
 import numpy as np
-import tensorflow as tf
-import tensorflow.keras.backend as K
+
 import matplotlib.pyplot as plt  
 import datetime  
-from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import Dense, Conv2D, Flatten, MaxPooling2D, BatchNormalization, Dropout, Activation, LeakyReLU, ReLU, Input
-from tensorflow.keras.optimizers import Adam, Adadelta
+import tensorflow as tf
+import tensorflow.keras.backend as K
+from tensorflow.keras.models import *
+from tensorflow.keras.layers import *
+from tensorflow.keras.optimizers import *
 from tensorflow.keras.callbacks import TensorBoard
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
-from tensorflow.keras.optimizers import Adam, Adadelta
 from sklearn.model_selection import train_test_split
 
 class LearningRateCallback(tf.keras.callbacks.Callback):
@@ -30,6 +30,8 @@ class CnnModel:
         else:
             self.model = tf.keras.models.load_model(existing_model_name)
             self.setup_graph()
+
+    # def  TODO tf.test.gpu_device_name() -> will return /device:GPU:0 is is running on GPU
 
     def train(self, X_dataset, y_dataset, nb_epoch, batch_size, logs_path, test_data_ratio):
 
@@ -55,6 +57,8 @@ class CnnModel:
                                 #all valid data once
                                 verbose=1,
                                 callbacks=[tensorboard, LearningRateCallback()])
+            # TODO use initial_epoch for training continuation
+
         except KeyboardInterrupt:
             #self.model.save("interrupted_model.h5")
             pass # will just continue on saving 
@@ -80,44 +84,50 @@ class CnnModel:
         self.model.save(model_name)
         print("Model saved: %s" % model_name) 
 
-    def rmse(y_true, y_pred):
-        import tf.keras.backend
-        return backend.sqrt(backend.mean(backend.square(y_pred - y_true), axis=-1))
-
     def add_conv_layer(self, model, conv_filters, conv_kernel, pooling_kernel, activation_function, name):
         # Kernel size should be odd number
         # should be a method of ModelBuilder
-        model.add(Conv2D(conv_filters, kernel_size=conv_kernel, use_bias=False, padding='same', name=name, kernel_initializer = 'he_normal')) 
+        model.add(Conv2D(conv_filters, kernel_size=conv_kernel, use_bias=False, padding='same', name=name, kernel_initializer = 'he_uniform')) 
         # He initialization is recommended for ReLU
+        model.add(Activation(activation_function))
         model.add(BatchNormalization()) # Normalization after Conv layer (ResNet Keras)
         # axis should be set to Channels (w, h, ch), default is -1 (the last dimension)
-        model.add(Activation(activation_function))
-        model.add(Conv2D(int(conv_filters / 2), kernel_size=(1,1), use_bias=False, padding='same', name=name +"-1x1", kernel_initializer = 'he_normal')) 
+        #TODO check performance when BN is before/after Activation - both are correct sequences
+        # Maybe BN before ReLU allows better performance after optimalization (TensorRT)
+
+        model.add(Conv2D(int(conv_filters / 2), kernel_size=1, use_bias=False, padding='same', name=name +"-1x1", kernel_initializer = 'he_uniform')) 
+        # he_uniform is for ReLU
         # 1x1 conv with 1/2 filters for dimensionality reduction
-        model.add(BatchNormalization()) 
+        # TODO Check 1/4 reduction
         model.add(Activation(activation_function))
+        model.add(BatchNormalization()) 
         model.add(MaxPooling2D(pool_size=pooling_kernel, padding='same'))
         # No dropout for conv layers, because Dropout should not be used before ANY Batch Norm
 
     def __create_model(self, conv_filters, learning_rate, image_size):
         activation_function = LeakyReLU()
-        pooling_kernel = (2, 2)
+        pooling_kernel = 2
         input_shape = (image_size[1], image_size[0], 1)
 
         model = Sequential()
         model.add(Input(shape=input_shape))
     
-        self.add_conv_layer(model,conv_filters, (5, 5), pooling_kernel, activation_function, name="ConvInput")
-        for i in range(2, 5):
-            self.add_conv_layer(model, conv_filters * i, (3, 3), pooling_kernel, activation_function, name=f"Conv{i}")
+        self.add_conv_layer(model,conv_filters, 5, pooling_kernel, activation_function, name="ConvInput")
+        for i in range(2, 4):
+            # if kernel size is 1 number - it is defined for all axes 3 = (3,3)
+            self.add_conv_layer(model, conv_filters * i, 5, pooling_kernel, activation_function, name=f"Conv{i}")
 
         model.add(Flatten())
+        # TODO add more Batch norm here??? should not be relevant
         model.add(Dense(image_size[0] * image_size[1] / 10)) # just to fit model into GPU
         model.add(Dropout(0.5)) # Fraction of the input units to drop(!). droupout should be after normalization. 
 
         model.add(Dense(5, activation="linear")) 
 
+        #Nadam(learning_rate=learning_rate) #, beta_1=0.9, beta_2=0.999, epsilon=None, schedule_decay=0.004)
+        #Adadelta(learning_rate=learning_rate)
         opt = Adam(learning_rate=learning_rate)
+
 
         model.compile(loss="mean_absolute_error", optimizer=opt, metrics=['mse'])
         model.summary()

@@ -21,7 +21,6 @@ class ImageDataManager:
         self.image_target_size = image_target_size
         self.xyz_ranges = xyz_ranges
 
-
     def load_single_img(self, img_relative_path):
         img_path = os.path.join(self.main_script_path, img_relative_path)
         print("Loading image from %s ..." % img_path)
@@ -52,18 +51,38 @@ class ImageDataManager:
             result.append(y_value)
         for i in range(0,3):  
             result[i] =  (result[i] + abs(self.xyz_ranges[i][0]))  / (abs(self.xyz_ranges[i][0]) +  self.xyz_ranges[i][1])
-       
         return result
 
     def __load_resized(self, img_path):
         img = cv2.imread(img_path, cv2.IMREAD_GRAYSCALE)
-        #resized = cv2.resize(img, self.image_target_size)[:,:,3].astype(np.float32)  # TODO check if cast is required
-        #img = cv2.rotate(img, 0)
+        # TODO check if cast is required
         img = cv2.resize(img,self.image_target_size).astype(np.float32) # TODO put all type transformations into single place
         #TODO allow to define lower size of float values -> for instance, float16
         #cv2.imwrite("test-rot.png", img) 
-
         return img[..., np.newaxis]
+
+    def get_encoder_data(self):
+        X_train = []
+        y_train = []
+        all_image_names = self.__get_train_images_names_from_folder()
+        for img_name in all_image_names:
+            if re.match(f"{self.image_state_base}_\d+_X.+_date.+x_\d+_y_\d+", img_name):
+                continue
+            X_img_data, y_expected = self.load_image_pair(img_name, all_image_names)
+            X_train.append(X_img_data)
+            y_train.append(y_expected)
+        return np.array(X_train, dtype=np.float32), np.array(y_train, dtype=np.float32)
+
+    def load_image_pair(self, img_name, all_img_names):
+        depth_image = self.__load_resized(os.path.join(self.dataset_dir, img_name))
+        regex_basename_match = re.search("(" + self.image_state_base + "_\d+_X.+_date.+#\d+)(?:n\d+)?\.", img_name)
+        r = regex_basename_match.group(1)
+        label_img_name = list(filter(lambda x: (r+"_x_") in x, all_img_names))[0]
+        mask_image = self.__load_resized(os.path.join(self.dataset_dir, label_img_name))
+        print("Loaded: " + img_name)
+        #cv2.imwrite("mask.png", mask_image)
+        #cv2.imwrite("orig.png", depth_image)
+        return depth_image, mask_image
 
 
 # TODO unit test
