@@ -8,8 +8,8 @@ from convautoencoder import ConvAutoencoder
 from random import shuffle
 
 EPOCHS = 5
-BS = 32
-
+BS = 8
+STEPS_PER_EPOCH = 0
 smooth = 1.
 
 current_script_path = os.path.dirname(os.path.realpath(__file__))
@@ -18,10 +18,13 @@ dataset_dir = os.path.join(current_script_path, os.pardir, "dataset")
 xyz_ranges = [(-700, 700), (-600, 500), (0, 1000)]
 img_dataset_size = (320, 240)
 
-def train_generator(img_dir, batch_size, input_size):
-    list_images = os.listdir(img_dir)
-    shuffle(list_images) #Randomize the choice of batches
-    ids_train_split = range(len(list_images))
+list_images = os.listdir(os.path.join(dataset_dir,"mask"))
+shuffle(list_images) #Randomize the choice of batches
+num_samples = len(list_images)
+STEPS_PER_EPOCH = int(num_samples/BS)
+
+def train_generator(batch_size, input_size):
+    ids_train_split = range(num_samples)
     while True:
         for start in range(0, len(ids_train_split), batch_size):
             x_batch = []
@@ -54,10 +57,10 @@ autoencoder = ConvAutoencoder.build(*img_dataset_size, 1)
 autoencoder.compile(loss=dice_loss, optimizer=Adadelta(), metrics=[dice_coef, "binary_crossentropy", 'accuracy'])
 
 try:
-    history = autoencoder.fit_generator(train_generator(os.path.join(dataset_dir,"mask"),BS,img_dataset_size),steps_per_epoch=2,epochs=EPOCHS,verbose=1)
+    history = autoencoder.fit_generator(train_generator(BS,img_dataset_size),steps_per_epoch=STEPS_PER_EPOCH,epochs=EPOCHS,verbose=1)
 except KeyboardInterrupt:
     print("Interrupted")
 finally:
-    autoencoder.save("autoencoder_model.h5")
+    autoencoder.save(os.path.join("models","autoencoder_model.h5"))
 
 

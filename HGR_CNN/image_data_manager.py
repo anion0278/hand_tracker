@@ -99,7 +99,7 @@ class ImageDataManager:
         #r = regex_basename_match.group(1)
         #label_img_name = list(filter(lambda x: (r+"_x_") in x, all_img_names))[0]
         mask_image = self.__load_resized(os.path.join(self.dataset_dir,"mask",label_img_name))
-        print("Loaded: " + img_name)
+        #print("Loaded: " + img_name)
         #cv2.imwrite("mask.png", mask_image)
         #cv2.imwrite("orig.png", depth_image)
         return depth_image, mask_image
