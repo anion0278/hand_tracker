@@ -22,6 +22,7 @@
     <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="predictor.py" />
     <Compile Include="sim.py" />
     <Compile Include="simConst.py" />
     <Compile Include="SimulationPredictor.py">
