@@ -1,5 +1,4 @@
 import pyrealsense2 as rs
-import cv2
 import numpy as np
 
 class VideoImageFetcher:
@@ -43,13 +42,6 @@ class VideoImageFetcher:
         self.__streaming = False
         self._pipeline.stop()
 
-    def clip_depth(self,img): #move to other place
-        xyz_ranges = [(-700, 700), (-600, 500), (0, 1000)]
-        depth_image = np.clip(img,xyz_ranges[2][0],xyz_ranges[2][1])/xyz_ranges[2][1]
-        depth_image_filtered = (255 - 255.0 * depth_image).astype('uint8')
-        resized_img = cv2.resize(depth_image_filtered, self.__dataset_img_size).astype('uint8')
-        return resized_img
-    
     def __fetch_image(self):
         if self.__streaming:
             try:
@@ -86,10 +78,3 @@ class VideoImageFetcher:
         di,_,_ = self.__fetch_image()
         return di
 
-    def _display_input(self,img):
-        cv2.imshow("Input image",img)
-        key = cv2.waitKey(1)
-
-    def _display_output(self,img):
-        cv2.imshow("Mask image",img)
-        key = cv2.waitKey(1)

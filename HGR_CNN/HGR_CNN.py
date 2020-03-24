@@ -5,14 +5,16 @@ import tensorflow as tf
 import pyrealsense2 as rs
 import numpy as np
 import datatypes
-import image_data_manager as loader
+import image_data_manager as idm
 import dataset_generator as gen
 import cnn_model 
-import predictor_facade as predictor
+import predictor as pr
 import SimulationPredictor as spredictor
 from time import time, strftime, gmtime
 import time as tm
 from datetime import datetime
+import video_fetcher as vf
+import visualizer as vis
 
 version_name = "cnn-regression"
 
@@ -42,6 +44,7 @@ recorded_gesture = datatypes.Gesture.POINTING
 
 img_camera_size = (640, 480) 
 img_dataset_size = (320, 240)
+camera_rate = 30
 
 xyz_ranges = [(-700, 700), (-600, 500), (0, 1000)]
 depth_max = float(1000) # millimeters
@@ -59,11 +62,12 @@ if __name__ == "__main__":
     #sys.argv = [sys.argv[0], continue_train] 
     #sys.argv = [sys.argv[0], predict_command, os.path.join(dataset_dir, "depth_77_X356.4_Y-342.1_Z414.0_hand1_gest1_date03-02-2020_15-33-02.png")]
     #sys.argv = [sys.argv[0], predict_command, "depth_77_X356.4_Y-342.1_Z414.0_hand1_gest1_date03-02-2020_15-33-02.jpg"]
-    #sys.argv = [sys.argv[0], online_command]
+    sys.argv = [sys.argv[0], online_command]
     #sys.argv = [sys.argv[0], simulation_command]
     print(sys.argv) 
 
-    img_loader = loader.ImageDataManager(current_script_path, dataset_dir, "depth", img_dataset_size, xyz_ranges)
+    image_manager = idm.ImageDataManager(current_script_path, dataset_dir, "depth", img_dataset_size, xyz_ranges) 
+    visualizer = vis.Visualizer()
     
     if (len(sys.argv) == 1):
         print("No arguments provided. See help (-h).")
@@ -99,9 +103,19 @@ if __name__ == "__main__":
 
     if (sys.argv[1] == online_command):
         print("Online prediction...")
-        model = cnn_model.CnnModel(filters_count, learning_rate, img_dataset_size, os.path.join(models_dir, model_name))
-        predict = predictor.OnlinePredictor(model, img_camera_size, img_dataset_size, xyz_ranges)
-        predict.predict_online()
+        model_name = os.path.join(models_dir,"autoencoder_model.h5")
+        predictor = pr.Predictor(model_name)
+        video_fetcher = vf.VideoImageFetcher(img_camera_size,img_dataset_size,camera_rate)
+        video_fetcher.init_stream()
+        key = 1
+
+        while key != 27:
+            source = image_manager.encode_camera_image(video_fetcher.get_depth_raw())
+            predicted = predictor.predict(source)
+            visualizer.display_video("predicted",image_manager.decode_predicted(predicted),1)
+            visualizer.display_video("camera image",video_fetcher.get_color(),1)
+
+        video_fetcher.close_stream()
         sys.exit(0)
 
     if (sys.argv[1] == predict_command and not(sys.argv[2].isspace())):
@@ -128,3 +142,12 @@ if __name__ == "__main__":
         spredict = spredictor.SimulationPredictor(model, img_camera_size, img_dataset_size, depth_max,depth_min,x_min,x_max,y_min,y_max, xyz_ranges)
         spredict.predict_online()
         sys.exit(0)
+
+#obsolate:
+
+    #if (sys.argv[1] == online_command):
+    #    print("Online prediction...")
+    #    model = cnn_model.CnnModel(filters_count, learning_rate, img_dataset_size, os.path.join(models_dir, model_name))
+    #    predict = predictor.OnlinePredictor(model, img_camera_size, img_dataset_size, xyz_ranges)
+    #    predict.predict_online()
+    #    sys.exit(0)

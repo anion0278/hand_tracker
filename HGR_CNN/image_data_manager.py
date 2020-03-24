@@ -23,7 +23,7 @@ class ImageDataManager:
         self.image_state_base = image_state_base
         self.main_script_path = main_script_path
         self.dataset_dir = dataset_dir
-        self.image_target_size = image_target_size
+        self.dataset_img_size = image_target_size
         self.xyz_ranges = xyz_ranges
 
     def load_single_img(self, img_relative_path):
@@ -33,6 +33,13 @@ class ImageDataManager:
         y_expected = self.parse_expected_value(img_relative_path)
         print("Loaded: " + img_relative_path + " -> " + str(y_expected))
         return X_img_data, y_expected
+    
+    def clip_depth(self,img):
+        depth_image = np.clip(img,self.xyz_ranges[2][0],self.xyz_ranges[2][1])/self.xyz_ranges[2][1]
+        depth_image_filtered = (255 - 255.0 * depth_image).astype('uint8')
+        resized_img = cv2.resize(depth_image_filtered, self.dataset_img_size).astype('uint8')
+        return resized_img
+    
 
     def get_train_data(self):
         X_train = []
@@ -74,7 +81,7 @@ class ImageDataManager:
     def __load_resized(self, img_path):
         img = cv2.imread(img_path, cv2.IMREAD_GRAYSCALE)
         # TODO check if cast is required
-        img = cv2.resize(img,self.image_target_size).astype(np.float32) # TODO put all type transformations into single place
+        img = cv2.resize(img,self.dataset_img_size).astype(np.float32) # TODO put all type transformations into single place
         #TODO allow to define lower size of float values -> for instance, float16
         #cv2.imwrite("test-rot.png", img) 
         return img[..., np.newaxis]
@@ -103,6 +110,16 @@ class ImageDataManager:
         #cv2.imwrite("mask.png", mask_image)
         #cv2.imwrite("orig.png", depth_image)
         return depth_image, mask_image
+   
+    def decode_predicted(self,img):
+        return 255*img.astype("uint8")
+
+    def encode_camera_image(self,source):
+        image = self.clip_depth(source)
+        image_aug = image[...,np.newaxis]
+        image_norm = [image_aug.astype("float32") / 255.0]
+        image_out = np.array(image_norm)
+        return image_out
 
 
 # TODO unit test
