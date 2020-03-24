@@ -22,15 +22,15 @@
     <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="simulation_fetcher.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="visualizer.py">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="predictor.py" />
     <Compile Include="sim.py" />
     <Compile Include="simConst.py" />
-    <Compile Include="SimulationPredictor.py">
-      <SubType>Code</SubType>
-    </Compile>
     <Compile Include="CoppeliaAPI.py">
       <SubType>Code</SubType>
     </Compile>
@@ -39,7 +39,6 @@
     <Compile Include="datatypes.py" />
     <Compile Include="HGR_CNN.py" />
     <Compile Include="image_data_manager.py" />
-    <Compile Include="predictor_facade.py" />
     <Compile Include="simple_recognizer.py" />
     <Compile Include="video_fetcher.py" />
   </ItemGroup>

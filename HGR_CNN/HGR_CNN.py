@@ -14,6 +14,7 @@ from time import time, strftime, gmtime
 import time as tm
 from datetime import datetime
 import video_fetcher as vf
+import simulation_fetcher as sf
 import visualizer as vis
 
 version_name = "cnn-regression"
@@ -62,8 +63,8 @@ if __name__ == "__main__":
     #sys.argv = [sys.argv[0], continue_train] 
     #sys.argv = [sys.argv[0], predict_command, os.path.join(dataset_dir, "depth_77_X356.4_Y-342.1_Z414.0_hand1_gest1_date03-02-2020_15-33-02.png")]
     #sys.argv = [sys.argv[0], predict_command, "depth_77_X356.4_Y-342.1_Z414.0_hand1_gest1_date03-02-2020_15-33-02.jpg"]
-    sys.argv = [sys.argv[0], online_command]
-    #sys.argv = [sys.argv[0], simulation_command]
+    #sys.argv = [sys.argv[0], online_command]
+    sys.argv = [sys.argv[0], simulation_command]
     print(sys.argv) 
 
     image_manager = idm.ImageDataManager(current_script_path, dataset_dir, "depth", img_dataset_size, xyz_ranges) 
@@ -105,7 +106,7 @@ if __name__ == "__main__":
         print("Online prediction...")
         model_name = os.path.join(models_dir,"autoencoder_model.h5")
         predictor = pr.Predictor(model_name)
-        video_fetcher = vf.VideoImageFetcher(img_camera_size,img_dataset_size,camera_rate)
+        video_fetcher = vf.VideoImageFetcher(img_camera_size,camera_rate)
         video_fetcher.init_stream()
         key = 1
 
@@ -138,9 +139,19 @@ if __name__ == "__main__":
 
     if (sys.argv[1] == simulation_command):
         print("Simulation prediction...")
-        model = cnn_model.CnnModel(filters_count, learning_rate, img_dataset_size, os.path.join(models_dir, model_name))
-        spredict = spredictor.SimulationPredictor(model, img_camera_size, img_dataset_size, depth_max,depth_min,x_min,x_max,y_min,y_max, xyz_ranges)
-        spredict.predict_online()
+        model_name = os.path.join(models_dir,"autoencoder_model.h5")
+        predictor = pr.Predictor(model_name)
+        sim_fetcher = sf.SimulationFetcher()
+        sim_fetcher.init_stream()
+        key = 1
+
+        while key != 27:
+            source = image_manager.encode_sim_image(sim_fetcher.get_depth_img())
+            predicted = predictor.predict(source)
+            visualizer.display_video("predicted",image_manager.decode_predicted(predicted),1)
+            #visualizer.display_video("camera image",video_fetcher.get_color(),1)
+
+        sim_fetcher.close_stream()
         sys.exit(0)
 
 #obsolate:
@@ -151,3 +162,10 @@ if __name__ == "__main__":
     #    predict = predictor.OnlinePredictor(model, img_camera_size, img_dataset_size, xyz_ranges)
     #    predict.predict_online()
     #    sys.exit(0)
+
+      #if (sys.argv[1] == simulation_command):
+      #  print("Simulation prediction...")
+      #  model = cnn_model.CnnModel(filters_count, learning_rate, img_dataset_size, os.path.join(models_dir, model_name))
+      #  spredict = spredictor.SimulationPredictor(model, img_camera_size, img_dataset_size, depth_max,depth_min,x_min,x_max,y_min,y_max, xyz_ranges)
+      #  spredict.predict_online()
+      #  sys.exit(0)

@@ -4,14 +4,13 @@ import numpy as np
 class VideoImageFetcher:
     """class for capturing image from Intel RealSense D435i camera"""
 
-    def __init__(self,camera_img_size,img_dataset_size,image_rate):
+    def __init__(self,camera_img_size,image_rate):
         self.__camera_img_size = camera_img_size
-        self.__dataset_img_size = img_dataset_size
         self.__image_rate = image_rate
         self.__streaming = False
 
     def init_stream(self):
-        self._pipeline = rs.pipeline()
+        self.__pipeline = rs.pipeline()
         config = rs.config()
 
         config.enable_stream(rs.stream.depth, self.__camera_img_size[0], self.__camera_img_size[1], rs.format.z16, self.__image_rate)
@@ -21,7 +20,7 @@ class VideoImageFetcher:
         self.__colorizer.set_option(rs.option.color_scheme, 2)
 
         try:
-            profile = self._pipeline.start(config)
+            profile = self.__pipeline.start(config)
 
             depth_sensor = profile.get_device().first_depth_sensor()
             depth_scale = depth_sensor.get_depth_scale()
@@ -40,13 +39,13 @@ class VideoImageFetcher:
 
     def close_stream(self):
         self.__streaming = False
-        self._pipeline.stop()
+        self.__pipeline.stop()
 
     def __fetch_image(self):
         if self.__streaming:
             try:
                 # Wait for a coherent pair of frames: depth and color
-                frames = self._pipeline.wait_for_frames() # original frames
+                frames = self.__pipeline.wait_for_frames() # original frames
                 aligned_frames = self.__align.process(frames) # aligned frames
                 depth_frame = aligned_frames.get_depth_frame()
                 color_frame = aligned_frames.get_color_frame()

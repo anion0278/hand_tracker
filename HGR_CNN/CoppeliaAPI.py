@@ -19,6 +19,9 @@ class CoppeliaAPI:
         err, resolution, image = sim.simxGetVisionSensorImage(self.clientID,self.vision, 0,sim.simx_opmode_blocking)
         time.sleep(0.05)
 
+    def stopSimulation(self):
+        self.clientID.simxFinish(-1)
+
     def GetImage(self):
         err, resolution, image = sim.simxGetVisionSensorImage(self.clientID,self.vision, 0,sim.simx_opmode_blocking)
         if err == sim.simx_return_ok:
