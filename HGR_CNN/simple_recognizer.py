@@ -3,7 +3,7 @@ import numpy as np
 
 class BlobRecognizer():
     
-    min_blob_size = 60
+    min_blob_size = 5
     max_blob_size = 2500
     sensitivity = 20
 
@@ -22,9 +22,9 @@ class BlobRecognizer():
 
     def __find_blob_binary(self,image):
         try:
-            _, contours, hierarchy_ = cv2.findContours(image, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
+            _, contours, hierarchy_ = cv2.findContours(image.astype("uint8"), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
         except:
-            contours,_ = cv2.findContours(image, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
+            contours,_ = cv2.findContours(image.astype("uint8"), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
         try:
             if not contours:
                 print('Contour not detected')

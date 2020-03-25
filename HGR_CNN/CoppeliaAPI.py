@@ -15,8 +15,10 @@ class CoppeliaAPI:
     def initSimulation(self):
         self.hand = self.GetObjectHandle('Hand')
         self.vision = self.GetObjectHandle('Vision_sensor')
+        self.mask = self.GetObjectHandle('Vision_sensor_mask')
         self.sphere = self.GetObjectHandle('Sphere')
-        err, resolution, image = sim.simxGetVisionSensorImage(self.clientID,self.vision, 0,sim.simx_opmode_blocking)
+        err, resolution, image = sim.simxGetVisionSensorImage(self.clientID,self.vision, 0,sim.simx_opmode_streaming)
+        err, resolution, image = sim.simxGetVisionSensorImage(self.clientID,self.mask, 0,sim.simx_opmode_streaming)
         time.sleep(0.05)
 
     def stopSimulation(self):
@@ -34,6 +36,20 @@ class CoppeliaAPI:
             print(err)
         return None
 
+    def GetMask(self):
+        err, resolution, image = sim.simxGetVisionSensorImage(self.clientID,self.mask, 0,sim.simx_opmode_blocking)
+        if err == sim.simx_return_ok:
+            img = np.array(image,dtype=np.uint8)
+            img.resize([resolution[1],resolution[0],3])
+            img = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
+            imgFlip = cv.flip(img,0)
+            ret,img_out = cv.threshold(imgFlip,10,255,cv.THRESH_BINARY)
+
+            return img_out
+        else:
+            print(err)
+        return None
+
     def GetObjectHandle(self,name):
         res,handle=sim.simxGetObjectHandle(self.clientID,name,sim.simx_opmode_oneshot_wait)
         if res==sim.simx_return_ok:
@@ -43,8 +59,8 @@ class CoppeliaAPI:
             print ('Remote API function call returned with error code: ',res)
             return None
         
-    def GetObjectPos(self,handle,mode):
-        res,posp=sim.simxGetObjectPosition(self.clientID,handle,-1,mode)
+    def GetObjectPos(self,handle):
+        res,posp=sim.simxGetObjectPosition(self.clientID,handle,-1,sim.simx_opmode_blocking)
         if res==sim.simx_return_ok:
             #print ('Position loaded:',posp)
             return np.round(posp,4)

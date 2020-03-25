@@ -122,11 +122,16 @@ class ImageDataManager:
         return image_out
 
     def encode_sim_image(self,source):
-        image = cv2.resize(source, self.dataset_img_size).astype('uint8')
+        image = self.resize_to_dataset(source)
         image_aug = image[...,np.newaxis]
         image_norm = [image_aug.astype("float32") / 255.0]
         image_out = np.array(image_norm)
         return image_out
+
+    def resize_to_dataset(self,img):
+        image_out = cv2.resize(img, self.dataset_img_size).astype('uint8')
+        return image_out
+
 
 
 # TODO unit test

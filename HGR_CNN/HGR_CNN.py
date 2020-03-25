@@ -16,6 +16,8 @@ from datetime import datetime
 import video_fetcher as vf
 import simulation_fetcher as sf
 import visualizer as vis
+import data_logger as dl
+import results_evaluator as res
 
 version_name = "cnn-regression"
 
@@ -141,16 +143,22 @@ if __name__ == "__main__":
         print("Simulation prediction...")
         model_name = os.path.join(models_dir,"autoencoder_model.h5")
         predictor = pr.Predictor(model_name)
+        logger = dl.DataLogger(os.path.join(current_script_path,"log.txt"))
+        evaluator = res.ResultsEvaluator()
         sim_fetcher = sf.SimulationFetcher()
         sim_fetcher.init_stream()
         key = 1
 
         while key != 27:
             source = image_manager.encode_sim_image(sim_fetcher.get_depth_img())
+            mask = image_manager.resize_to_dataset(sim_fetcher.get_mask())
             predicted = predictor.predict(source)
             visualizer.display_video("predicted",image_manager.decode_predicted(predicted),1)
-            #visualizer.display_video("camera image",video_fetcher.get_color(),1)
+            fault = evaluator.compare_two_masks(mask,predicted)
+            logger.log_data(fault)
+            visualizer.display_video("camera image",mask,1)
 
+        logger.save_data()
         sim_fetcher.close_stream()
         sys.exit(0)
 

@@ -28,7 +28,24 @@ class SimulationFetcher:
         else:
             print("Streaming not initialized")
             return None
-
+    
     def get_depth_img(self):
         dm = self.__fetch_image()
         return dm
+
+    def __fetch_mask(self):
+        if self.__streaming:
+            try:
+                image = self.__pipeline.GetMask()
+                return image
+
+            except Exception as ex:
+               print('Exception during streaming.. %' % ex)
+               return None
+        else:
+            print("Streaming not initialized")
+            return None
+   
+    def get_mask(self):
+        mask = self.__fetch_mask()
+        return mask
