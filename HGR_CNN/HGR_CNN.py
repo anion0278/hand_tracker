@@ -147,21 +147,23 @@ if __name__ == "__main__":
         evaluator = res.ResultsEvaluator()
         sim_fetcher = sf.SimulationFetcher()
         sim_fetcher.init_stream()
-        key = 1
+        try:
 
-        while key != 27:
-            source = image_manager.encode_sim_image(sim_fetcher.get_depth_img())
-            mask = image_manager.resize_to_dataset(sim_fetcher.get_mask())
-            predicted = predictor.predict(source)
-            visualizer.display_video("predicted",image_manager.decode_predicted(predicted),1)
-            fault = evaluator.compare_two_masks(mask,predicted)
-            print(fault)
-            logger.log_data(fault)
-            visualizer.display_video("camera image",mask,1)
-
-        logger.save_data()
-        sim_fetcher.close_stream()
-        sys.exit(0)
+            while True:
+                source = image_manager.encode_sim_image(sim_fetcher.get_depth_img())
+                mask = image_manager.resize_to_dataset(sim_fetcher.get_mask())
+                predicted = predictor.predict(source)
+                visualizer.display_video("predicted",image_manager.decode_predicted(predicted),1)
+                fault = evaluator.compare_two_masks(mask,predicted)
+                print(fault)
+                logger.log_data(fault)
+                visualizer.display_video("camera image",mask,1)
+        except KeyboardInterrupt:
+            print("Program stopped by user")
+        finally:
+            logger.save_data()
+            sim_fetcher.close_stream()
+            sys.exit(0)
 
 #obsolate:
 

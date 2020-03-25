@@ -10,7 +10,7 @@ class DataLogger:
     def save_data(self):
         f = open(self.__filename,"w+")
         for i in range(len(self.__data)):
-            f.write(data[i])
+            f.write(self.__data[i])
         f.close()
 
 
