@@ -155,6 +155,7 @@ if __name__ == "__main__":
             predicted = predictor.predict(source)
             visualizer.display_video("predicted",image_manager.decode_predicted(predicted),1)
             fault = evaluator.compare_two_masks(mask,predicted)
+            print(fault)
             logger.log_data(fault)
             visualizer.display_video("camera image",mask,1)
 

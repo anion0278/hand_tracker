@@ -112,7 +112,7 @@ class ImageDataManager:
         return depth_image, mask_image
    
     def decode_predicted(self,img):
-        return 255*img.astype("uint8")
+        return 255*img
 
     def encode_camera_image(self,source):
         image = self.clip_depth(source)
@@ -129,7 +129,7 @@ class ImageDataManager:
         return image_out
 
     def resize_to_dataset(self,img):
-        image_out = cv2.resize(img, self.dataset_img_size).astype('uint8')
+        image_out = cv2.resize(img, self.dataset_img_size)
         return image_out
 
 

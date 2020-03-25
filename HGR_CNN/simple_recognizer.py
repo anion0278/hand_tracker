@@ -33,9 +33,9 @@ class BlobRecognizer():
             blob = max(contours, key=lambda el: cv2.contourArea(el))
         
             blobSize = cv2.contourArea(blob)        
-            print(blobSize)
+            #print(blobSize)
 
-            if (blobSize < min_blob_size)or(blobSize > max_blob_size):
+            if (blobSize < self.min_blob_size)or(blobSize > self.max_blob_size):
                 return (0,0)
 
             M = cv2.moments(blob)
