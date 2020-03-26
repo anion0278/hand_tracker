@@ -18,6 +18,7 @@ class VideoImageFetcher:
         
         self.__colorizer = rs.colorizer()
         self.__colorizer.set_option(rs.option.color_scheme, 2)
+        self.__filter = rs.hole_filling_filter()
 
         try:
             profile = self.__pipeline.start(config)
@@ -54,7 +55,7 @@ class VideoImageFetcher:
 
                 depth_image = np.asanyarray(depth_frame.get_data())
                 color_image = np.asanyarray(color_frame.get_data())
-                depth_colorized = np.asanyarray(self.__colorizer.colorize(depth_frame).get_data())
+                depth_colorized = np.asanyarray(self.__colorizer.colorize(self.__filter.process(depth_frame)).get_data())
 
                 return depth_image,color_image,depth_colorized
 

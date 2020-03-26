@@ -16,7 +16,7 @@ def dice_loss(y_true, y_pred):
 
 
 class Predictor:
-    def __init__(self,model_name,):
+    def __init__(self,model_name):
         self.model_name = model_name
         self.autoencoder = tf.keras.models.load_model(self.model_name, custom_objects={'dice_loss': dice_loss, "dice_coef": dice_coef})
 
