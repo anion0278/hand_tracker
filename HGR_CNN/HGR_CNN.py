@@ -8,123 +8,94 @@ import datatypes
 import image_data_manager as loader
 import dataset_generator as gen
 import cnn_model 
-import predictor_facade as predictor
-import SimulationPredictor as spredictor
+import tensorboard_starter
+import predictor_facade as p
+import simulation_predictor as sp
 from time import time, strftime, gmtime
 import time as tm
+import autoencoder_wrapper as m
+import autoencoder_unet_model as current_model
+import config as c
 from datetime import datetime
-
-version_name = "cnn-regression"
 
 record_command = "record"
 train_command = "train"
 predict_command = "predict"
 continue_train = "continue_train"
-online_command = "online_prection"
-simulation_command = "simulation_prection"
+camera_command = "camera_prediction"
+simulation_command = "simulation_prediction"
 
-model_name = "current_model.h5"
+config = c.Configuration(version_name = "autoencoder", debug_mode=True, latest_model_name="autoencoder_model.h5")
 
-filters_count = 32
-learning_rate = 0.0005 # use high values because we have BatchNorm and Dropout
-batch_size = 32
-epochs_count = 20
-test_data_ratio = 0.2
-
-current_script_path = os.path.dirname(os.path.realpath(__file__))
-date_time = datetime.now().strftime("%d-%b-%Y-%H-%M-%S")
-logs_dir = os.path.join(current_script_path, "logs", version_name+f"_LR{learning_rate}_{date_time}")
-dataset_dir = os.path.join(current_script_path, os.pardir, "dataset") # pardir - parent dir (one lvl up)
-models_dir = os.path.join(current_script_path, "models") 
-
-record_when_no_hand = False
-recorded_gesture = datatypes.Gesture.POINTING
-
-img_camera_size = (640, 480) 
-img_dataset_size = (320, 240)
-
-xyz_ranges = [(-700, 700), (-600, 500), (0, 1000)]
-depth_max = float(1000) # millimeters
-depth_min = float(0)
-x_min = float(-700)
-x_max = float(700)
-y_min = float(-600)
-y_max = float(500)
-
+new_model_path = os.path.join(config.models_dir, "new_model.h5")
 
 if __name__ == "__main__":
-
     #sys.argv = [sys.argv[0], record_command]
     #sys.argv = [sys.argv[0], train_command] 
-    #sys.argv = [sys.argv[0], continue_train] 
-    #sys.argv = [sys.argv[0], predict_command, os.path.join(dataset_dir, "depth_77_X356.4_Y-342.1_Z414.0_hand1_gest1_date03-02-2020_15-33-02.png")]
-    #sys.argv = [sys.argv[0], predict_command, "depth_77_X356.4_Y-342.1_Z414.0_hand1_gest1_date03-02-2020_15-33-02.jpg"]
-    #sys.argv = [sys.argv[0], online_command]
+    sys.argv = [sys.argv[0], continue_train, "c_model.h5"] 
+    #sys.argv = [sys.argv[0], predict_command, os.path.join(c.current_dir_path, "testdata", "test5.jpg")]
+    #sys.argv = [sys.argv[0], camera_command]
     #sys.argv = [sys.argv[0], simulation_command]
-    print(sys.argv) 
+    c.msg(sys.argv) 
 
-    img_loader = loader.ImageDataManager(current_script_path, dataset_dir, "depth", img_dataset_size, xyz_ranges)
+    m.check_gpu()
+
+    img_manager = loader.ImageDataManager(config)
     
     if (len(sys.argv) == 1):
-        print("No arguments provided. See help (-h).")
+        c.msg("No arguments provided.")
         sys.exit(0)
 
     if (sys.argv[1] == record_command):
-        print("Dataset recording...")
-        recorder = gen.DatasetGenerator(record_when_no_hand, dataset_dir, img_camera_size, img_dataset_size, xyz_ranges)
-        recorder.record_data(recorded_gesture)
+        c.msg("Dataset recording...")
+        recorder = gen.DatasetGenerator(config, img_manager)
+        recorder.record_data(current_gesture = datatypes.Gesture.POINTING)
         sys.exit(0)
 
     if (sys.argv[1] == "tb"): #start tensorboard
-        print("Starting tensorboard...")
-        os.system('tensorboard --logdir='+os.path.join(current_script_path, "logs"))
+        c.msg("Starting tensorboard...")
+        tensorboard_starter.start_and_open()
         sys.exit(0)
 
     if (sys.argv[1] == train_command):
-        print("Training...")
-        model = cnn_model.CnnModel(filters_count, learning_rate, img_dataset_size, None)
-        X_data, y_data = img_loader.get_train_data()
-        model.train(X_data, y_data, epochs_count, batch_size, logs_dir, test_data_ratio)
-        model.save(os.path.join(models_dir, "new_model.h5"))
+        c.msg("Training...")
+        model = m.ModelWrapper(current_model.build(config.img_dataset_size), config)
+        model.recompile()
+        model.train(*img_manager.get_autoencoder_datagens())
+        model.save(new_model_path)
         sys.exit(0)
 
-    if (sys.argv[1] == continue_train): # FIXME  increases error!!!  probably because learning rate should be lower when cont.learning
-        prev_model_name = "new_model.h5" # input from params
-        print(f"Continue training of {prev_model_name}")
-        model = cnn_model.CnnModel(filters_count, learning_rate, img_dataset_size, os.path.join(models_dir, prev_model_name))
-        X_data, y_data = img_loader.get_train_data()
-        model.train(X_data, y_data, epochs_count, batch_size, logs_dir, test_data_ratio)
-        model.save(os.path.join(models_dir, "new_model.h5"))
+    if (sys.argv[1] == continue_train and not(sys.argv[2].isspace())): 
+        prev_model_name = sys.argv[2]
+        c.msg(f"Continue training of {prev_model_name}...")
+        model = m.load_model(os.path.join(config.models_dir, prev_model_name), config)
+        model.train(*img_manager.get_autoencoder_datagens())
+        model.save(new_model_path)
         sys.exit(0)
 
-    if (sys.argv[1] == online_command):
-        print("Online prediction...")
-        model = cnn_model.CnnModel(filters_count, learning_rate, img_dataset_size, os.path.join(models_dir, model_name))
-        predict = predictor.OnlinePredictor(model, img_camera_size, img_dataset_size, xyz_ranges)
-        predict.predict_online()
+    if (sys.argv[1] == camera_command):
+        c.msg("Online prediction from camera...")
+        model = m.load_model(config.latest_model_path, config)
+        predictor = p.OnlinePredictor(model, config, img_manager)
+        predictor.predict_online()
         sys.exit(0)
 
     if (sys.argv[1] == predict_command and not(sys.argv[2].isspace())):
-        print("Predicting: %s" % sys.argv[2])
-        tf.config.list_physical_devices('GPU') #check for gpu
-        tf.config.set_visible_devices([], 'GPU') #  faster for prediction (2x), or loading?
-        model = cnn_model.CnnModel(filters_count, learning_rate, img_dataset_size, os.path.join(models_dir, model_name))
-        X_predict, y_predict = img_loader.load_single_img(sys.argv[2])
-        #cv2.imwrite(os.path.join(current_script_path, "rgbd_6791_X261_Y175_Z356_hand1_gest1_date02-12-2020_14#41#54 TTT.png"), X_predict1)
-        #X_predict, y_predict = img_loader.load_single_img(os.path.join(current_script_path, "rgbd_6791_X261_Y175_Z356_hand1_gest1_date02-12-2020_14#41#54 TTT.png"))
-        result = model.predict_single_image(X_predict, y_predict)
-        
-        print("Expected: %s - predicted: %s" % (y_predict, result))
-        for i in range(0,3):  
-            result[i] = result[i] *  (abs(xyz_ranges[i][0]) +  xyz_ranges[i][1]) - abs(xyz_ranges[i][0])
-        result = np.round(result).astype("int")
-        # TODO !!! One Hot encoding for geture type prediction
-        print("[X:%s; Y:%s; Z:%s; Hand:%s; Gesture:%s;]" % (result[0],result[1],result[2], result[3] == 1, result[4]))
+        c.msg("Predicting: %s" % sys.argv[2])
+        model = m.load_model(config.latest_model_path, config)
+        img = img_manager.load_single_img(sys.argv[2])
+        mask = model.predict_single(img)
+        result = img_manager.img_mask_alongside(img, mask)
+        #img_manager.save_image(result, os.path.join(c.current_dir_path, "testdata", "mask.png"))
+        img_manager.show_image(result)
+        # TODO test method for each model wrapper type
         sys.exit(0)
 
     if (sys.argv[1] == simulation_command):
-        print("Simulation prediction...")
-        model = cnn_model.CnnModel(filters_count, learning_rate, img_dataset_size, os.path.join(models_dir, model_name))
-        spredict = spredictor.SimulationPredictor(model, img_camera_size, img_dataset_size, depth_max,depth_min,x_min,x_max,y_min,y_max, xyz_ranges)
-        spredict.predict_online()
+        c.msg("Online prediction from simulation...")
+        model = m.load_model(config.latest_model_path, config)
+        simulation = sp.SimulationPredictor(model, config, img_manager)
+        simulation.predict_online()
         sys.exit(0)
+
+    c.msg("Unrecognized input args. Check spelling.")

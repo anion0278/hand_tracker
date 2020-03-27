@@ -304,3 +304,9 @@ ModelManifest.xml
 /HGR_CNN/models
 /how mastergit reflog show master
 /dataset_old-2
+/HGR_CNN/testdata
+/HGR_CNN/model.onnx
+/HGR_CNN/autoencoder_model old model 15ep.h5
+/HGR_CNN/models - backup
+/HGR_CNN/mask.jpg
+/HGR_CNN/test10.jpg

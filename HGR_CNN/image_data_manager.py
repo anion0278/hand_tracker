@@ -2,7 +2,14 @@ import numpy as np
 import os
 import cv2
 import re
+from tensorflow.keras.preprocessing.image import ImageDataGenerator
+import blob_recognizer as b
 
+def binarization_norm(image):
+    image = np.array(image) / 255.0
+    image[image >= .5] = 1.
+    image[image < .5] = 0.
+    return image
 
 def get_img_name(img_counter, tip_pos, is_hand_detected, gesture):
     if not is_hand_detected: 
@@ -19,26 +26,100 @@ class ImageDataManager:
     _hand = 0
     _gest = 0
 
-    def __init__(self, main_script_path, dataset_dir, image_state_base, image_target_size, xyz_ranges):
-        self.image_state_base = image_state_base
-        self.main_script_path = main_script_path
-        self.dataset_dir = dataset_dir
-        self.image_target_size = image_target_size
-        self.xyz_ranges = xyz_ranges
+    def __init__(self, config):
+        self.img_dataset_size = config.img_dataset_size
+        self.config = config
 
-    def load_single_img(self, img_relative_path):
+    def load_single_img(self, img_path):
+        self.config.msg("Loading image from %s ..." % img_path)
+        img_data = self.__load_resized(img_path)
+        self.config.msg("Loaded: " + img_path)
+        return img_data
+
+    def prepare_image(self, image):
+        return cv2.resize(image,self.img_dataset_size).astype(self.config.datatype)
+
+    def __load_resized(self, img_path):
+        if img_path.endswith(".png"):
+            # load from png 4-channel image
+            img = cv2.imread(img_path, cv2.IMREAD_UNCHANGED)[:,:,3]
+        else:
+            img = cv2.imread(img_path, cv2.IMREAD_GRAYSCALE)
+        return self.prepare_image(img)
+
+    def save_image(self, image, img_path):
+        cv2.imwrite(img_path, image.astype("uint8"))
+
+    def show_image(self, image, title = "Image", wait = True):
+        cv2.imshow(title, image)
+        return cv2.waitKey(-1 if wait else 1)
+
+    def overlay_text_on_img(self, image, text, y_pos, color = (255,255,0)):
+        font = cv2.FONT_HERSHEY_SIMPLEX
+        cv2.putText(image, text, (10, y_pos), font, fontScale = 0.7, color = color, lineType = 2)
+
+    def overlay_circle_on_img(self, image, pos, color = (255,0,0)):
+        cv2.circle(image, center = pos, radius = 2,  color = color, thickness=2, lineType=8, shift=0) 
+
+    def stack_images(self, img1, img2):
+        return np.hstack((img1, img2))
+
+    def img_mask_alongside(self, img, mask):
+        center = b.find_blob(mask)
+        if center is not None:
+            self.overlay_circle_on_img(img, center) 
+        return self.stack_images(img.astype("uint8"), mask)
+
+    # TODO - move all dataset stuff to dataset_manager
+    def get_autoencoder_datagens(self, flow_mode = True):
+        if flow_mode:
+            return self.__get_flow_autoencoder_datagens(self.config.dataset_dir_path, self.config.imgs_dir, self.config.masks_dir, self.config.batch_size)
+        else:
+            raise ModuleNotFoundError("Not implemented yet!")
+
+    def __get_flow_autoencoder_datagens(self, dataset_path, imgs_dir, masks_dir, batch_size):
+        augmentations = dict(#featurewise_center=True,
+                            #featurewise_std_normalization=True,
+                            #dtype = datatype
+                            rescale=1. / 255.0,)
+
+        seed = 1
+        image_generator = self.__get_datagen(augmentations, seed, dataset_path, imgs_dir, batch_size)
+
+        #TODO add preprocessing_function = binarization_norm
+        mask_generator = self.__get_datagen(augmentations, seed, dataset_path, masks_dir, batch_size)
+
+        train_steps = len(os.listdir(os.path.join(dataset_path, imgs_dir))) / batch_size
+        train_gen = (pair for pair in zip(image_generator, mask_generator))
+        # TODO separate train from val: https://github.com/keras-team/keras/issues/5862
+        return train_gen, 1, None, 0
+
+    def __get_datagen(self, augmentations, seed, dataset_dir, class_dir, batch_size):
+        datagen = ImageDataGenerator(**augmentations,) 
+        #preprocessing_function = binarization_norm
+        generator = datagen.flow_from_directory(dataset_dir,
+                                                        class_mode=None,
+                                                        classes=[class_dir],
+                                                        color_mode="grayscale",
+                                                        target_size=reversed(self.img_dataset_size), # h, w !
+                                                        seed=seed, batch_size = batch_size)
+        generator.next()
+        return generator
+
+    # Regression model compatibility
+    def load_single_dataset_img(self, img_path):
         img_path = os.path.join(self.main_script_path, img_relative_path)
-        print("Loading image from %s ..." % img_path)
+        self.config.msg("Loading image from %s ..." % img_path)
         X_img_data = self.__load_resized(img_path)
         y_expected = self.parse_expected_value(img_relative_path)
-        print("Loaded: " + img_relative_path + " -> " + str(y_expected))
+        self.config.msg("Loaded: " + img_relative_path + " -> " + str(y_expected))
         return X_img_data, y_expected
 
     def get_train_data(self):
         X_train = []
         y_train = []
         for train_img_path in self.__get_train_images_names_from_folder():
-            X_img_data, y_expected = self.load_single_img(os.path.join(self.dataset_dir, train_img_path))
+            X_img_data, y_expected = self.load_single_dataset_img(os.path.join(self.dataset_dir, train_img_path))
             X_train.append(X_img_data)
             y_train.append(y_expected)
         return np.array(X_train, dtype=np.float32), np.array(y_train, dtype=np.float32)
@@ -58,51 +139,11 @@ class ImageDataManager:
         self._gest = int(regex_name_match.group(5))
         return self.__posNormalizedToWorkspace
 
-    def parse_expected_mask(self, img_name):
-        regex_name_match = re.search(f'_x_(\d+)_y_(\d+)', img_name)
-        for i in range(1,3):
-            self._FingerTipPix[i-1] = int(regex_name_match.group(i))
-        return self._FingerTipPix
-            #result.append(y_value)
-
     def __posNormalizedToWorkspace(self):
         result = []
         for i in range(0,3):  
             result[i] =  (self._FingerTipPos[i] + abs(self.xyz_ranges[i][0]))  / (abs(self.xyz_ranges[i][0]) +  self.xyz_ranges[i][1])
         return result
-
-    def __load_resized(self, img_path):
-        img = cv2.imread(img_path, cv2.IMREAD_GRAYSCALE)
-        # TODO check if cast is required
-        img = cv2.resize(img,self.image_target_size).astype(np.float32) # TODO put all type transformations into single place
-        #TODO allow to define lower size of float values -> for instance, float16
-        #cv2.imwrite("test-rot.png", img) 
-        return img[..., np.newaxis]
-
-    def get_encoder_data(self,img_name):
-        X_train = []
-        y_train = []
-        all_image_names = self.__get_train_images_names_from_folder()
-        for img_name in all_image_names:
-            if re.match(f"{self.image_state_base}_\d+_X.+_date.+x_\d+_y_\d+", img_name):
-                continue
-            X_img_data, y_expected = self.load_image_pair(img_name, all_image_names)
-            X_train.append(X_img_data)
-            y_train.append(y_expected)
-        return np.array(X_train, dtype=np.float32), np.array(y_train, dtype=np.float32)
-
-    def load_image_pair(self, label_img_name):#, all_img_names):
-        img_name = re.split("_x_",label_img_name)[0]+".jpg"
-        
-        depth_image = self.__load_resized(os.path.join(self.dataset_dir,"img", img_name))
-        #regex_basename_match = re.search("(" + self.image_state_base + "_\d+_X.+_date.+#\d+)(?:n\d+)?\.", img_name)
-        #r = regex_basename_match.group(1)
-        #label_img_name = list(filter(lambda x: (r+"_x_") in x, all_img_names))[0]
-        mask_image = self.__load_resized(os.path.join(self.dataset_dir,"mask",label_img_name))
-        #print("Loaded: " + img_name)
-        #cv2.imwrite("mask.png", mask_image)
-        #cv2.imwrite("orig.png", depth_image)
-        return depth_image, mask_image
 
 
 # TODO unit test

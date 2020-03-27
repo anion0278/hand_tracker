@@ -99,7 +99,7 @@ sim_modelproperty_not_cuttable                    =0x0010
 sim_modelproperty_not_dynamic                    =0x0020
 sim_modelproperty_not_respondable                =0x0040 # cannot be selected if sim_modelproperty_not_dynamic is not selected 
 sim_modelproperty_not_reset                        =0x0080 # Model is not reset at simulation end. This flag is cleared at simulation end 
-sim_modelproperty_not_visible                    =0x0100 # Whole model is invisible independent of local visibility settings 
+sim_modelproperty_not_visible                    =0x0100 # Whole model is invisible independent of local visibility config 
 sim_modelproperty_not_model                        =0xf000 # object is not a model 
 
 
@@ -462,7 +462,7 @@ sim_intparam_server_port_start      =9  # can only be read
 sim_intparam_server_port_range      =10 # can only be read 
 sim_intparam_visible_layers         =11
 sim_intparam_infotext_style         =12
-sim_intparam_settings               =13
+sim_intparam_config               =13
 sim_intparam_edit_mode_type         =14 # can only be read 
 sim_intparam_server_port_next       =15 # is initialized at sim_intparam_server_port_start 
 sim_intparam_qt_version             =16 # version of the used Qt framework 

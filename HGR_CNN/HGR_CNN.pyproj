@@ -23,11 +23,11 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="sim.py" />
-    <Compile Include="simConst.py" />
-    <Compile Include="SimulationPredictor.py">
+    <Compile Include="sim_const.py" />
+    <Compile Include="simulation_predictor.py">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="CoppeliaAPI.py">
+    <Compile Include="coppelia_wrapper.py">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="cnn_model.py" />

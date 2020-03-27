@@ -3,27 +3,16 @@ import numpy as np
 import cv2
 import os
 import datatypes
-import image_data_manager
 import simple_recognizer
 import sys
 from datetime import datetime
 
-
 class DatasetGenerator:
-    def __init__(self, record_when_no_hand, dataset_path, camera_img_size, dataset_img_size, xyz_ranges):
-        self.dataset_path = dataset_path
-        self.camera_img_size = camera_img_size
-        self.dataset_img_size = dataset_img_size
+    def __init__(self, config, image_manager):
+        self.config = config
         self.depth_max_calibration = xyz_ranges[3][1]
-        self.record_when_no_hand = record_when_no_hand
+        self.image_manager = image_manager 
         self.img_counter = 0 
-
-    def overlay_text_on_img(self, image, text, y_pos):
-        font = cv2.FONT_HERSHEY_SIMPLEX
-        cv2.putText(image, text, (10, y_pos), font, fontScale = 0.7, color = (255,255,0), lineType = 2)
-
-    def overlay_circle_on_img(self, image, pos):
-        cv2.circle(image, center = (pos[0], pos[1]), radius = 4,  color = (255,0,0), thickness=6, lineType=8, shift=0) 
 
     def create_rgbd_img(self, color_image, depth_image):
         depth_image_filtered = np.clip(depth_image, 0, self.depth_max_calibration) / self.depth_max_calibration
@@ -47,8 +36,8 @@ class DatasetGenerator:
         pipeline = rs.pipeline()
         config = rs.config()
         image_rate = 30
-        config.enable_stream(rs.stream.depth, self.camera_img_size[0], self.camera_img_size[1], rs.format.z16, image_rate)
-        config.enable_stream(rs.stream.color, self.camera_img_size[0], self.camera_img_size[1], rs.format.bgr8, image_rate)
+        config.enable_stream(rs.stream.depth, *self.config.img_camera_size, rs.format.z16, image_rate)
+        config.enable_stream(rs.stream.color, *self.config.img_camera_size, rs.format.bgr8, image_rate)
 
         profile = pipeline.start(config)
 
@@ -56,7 +45,6 @@ class DatasetGenerator:
         color_sensor.set_option(rs.option.enable_auto_exposure, False)
         color_sensor.set_option(rs.option.enable_auto_white_balance, False)
 
-        
         align_to = rs.stream.color
         align = rs.align(align_to)
 

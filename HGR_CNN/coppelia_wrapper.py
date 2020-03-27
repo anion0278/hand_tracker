@@ -12,14 +12,14 @@ class CoppeliaAPI:
         else:
             exit()
 
-    def initSimulation(self):
+    def init_simulation(self):
         self.hand = self.GetObjectHandle('Hand')
         self.vision = self.GetObjectHandle('Vision_sensor')
         self.sphere = self.GetObjectHandle('Sphere')
         err, resolution, image = sim.simxGetVisionSensorImage(self.clientID,self.vision, 0,sim.simx_opmode_blocking)
         time.sleep(0.05)
 
-    def GetImage(self):
+    def get_cam_image(self):
         err, resolution, image = sim.simxGetVisionSensorImage(self.clientID,self.vision, 0,sim.simx_opmode_blocking)
         if err == sim.simx_return_ok:
             img = np.array(image,dtype=np.uint8)
