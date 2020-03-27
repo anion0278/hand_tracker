@@ -5,7 +5,7 @@ import tensorflow as tf
 import pyrealsense2 as rs
 import numpy as np
 import datatypes
-import image_data_manager as loader
+import image_data_manager as idm
 import dataset_generator as gen
 import cnn_model 
 import tensorboard_starter
@@ -17,6 +17,11 @@ import autoencoder_wrapper as m
 import autoencoder_unet_model as current_model
 import config as c
 from datetime import datetime
+import video_fetcher as vf
+import simulation_fetcher as sf
+import visualizer as vis
+import data_logger as dl
+import results_evaluator as res
 
 record_command = "record"
 train_command = "train"
@@ -99,3 +104,45 @@ if __name__ == "__main__":
         sys.exit(0)
 
     c.msg("Unrecognized input args. Check spelling.")
+        #if (sys.argv[1] == online_command):
+        #print("Online prediction...")
+        #model_name = os.path.join(models_dir,"autoencoder_model.h5")
+        #predictor = pr.Predictor(model_name)
+        #video_fetcher = vf.VideoImageFetcher(img_camera_size,camera_rate)
+        #video_fetcher.init_stream()
+        #key = 1
+
+        #while key != 27:
+        #    source = image_manager.encode_camera_image(video_fetcher.get_depth_raw())
+        #    predicted = predictor.predict(source)
+        #    visualizer.display_video("predicted",image_manager.decode_predicted(predicted),1)
+        #    visualizer.display_video("source",video_fetcher.get_depth_img(),1)
+        #    visualizer.display_video("camera image",video_fetcher.get_color(),1)
+
+        #video_fetcher.close_stream()
+
+        # if (sys.argv[1] == simulation_command):
+        #print("Simulation prediction...")
+        #model_name = os.path.join(models_dir,"autoencoder_model.h5")
+        #predictor = pr.Predictor(model_name)
+        #logger = dl.DataLogger(os.path.join(current_script_path,"log.txt"))
+        #evaluator = res.ResultsEvaluator()
+        #sim_fetcher = sf.SimulationFetcher()
+        #sim_fetcher.init_stream()
+        #try:
+
+        #    while True:
+        #        source = image_manager.encode_sim_image(sim_fetcher.get_depth_img())
+        #        mask = image_manager.resize_to_dataset(sim_fetcher.get_mask())
+        #        predicted = predictor.predict(source)
+        #        visualizer.display_video("predicted",image_manager.decode_predicted(predicted),1)
+        #        fault = evaluator.compare_two_masks(mask,predicted)
+        #        print(fault)
+        #        logger.log_data(fault)
+        #        visualizer.display_video("camera image",mask,1)
+        #except KeyboardInterrupt:
+        #    print("Program stopped by user")
+        #finally:
+        #    logger.save_data()
+        #    sim_fetcher.close_stream()
+        #    sys.exit(0)

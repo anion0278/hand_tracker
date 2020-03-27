@@ -114,6 +114,13 @@ class ImageDataManager:
         y_expected = self.parse_expected_value(img_relative_path)
         self.config.msg("Loaded: " + img_relative_path + " -> " + str(y_expected))
         return X_img_data, y_expected
+    
+    def clip_depth(self,img):
+        depth_image = np.clip(img,self.xyz_ranges[2][0],self.xyz_ranges[2][1])/self.xyz_ranges[2][1]
+        depth_image_filtered = (255 - 255.0 * depth_image).astype('uint8')
+        resized_img = cv2.resize(depth_image_filtered, self.dataset_img_size).astype('uint8')
+        return resized_img
+    
 
     def get_train_data(self):
         X_train = []
@@ -146,6 +153,28 @@ class ImageDataManager:
         return result
 
 
+       
+    def decode_predicted(self,img):
+        return 255*img
+
+    def encode_camera_image(self,source):
+        image = self.clip_depth(source)
+        image_aug = image[...,np.newaxis]
+        image_norm = [image_aug.astype("float32") / 255.0]
+        image_out = np.array(image_norm)
+        return image_out
+
+    def encode_sim_image(self,source):
+        image = self.resize_to_dataset(source)
+        image_aug = image[...,np.newaxis]
+        image_norm = [image_aug.astype("float32") / 255.0]
+        image_out = np.array(image_norm)
+        return image_out
+
+    def resize_to_dataset(self,img):
+        image_out = cv2.resize(img, self.dataset_img_size)
+        return image_out
+
 # TODO unit test
 if __name__ == "__main__":
     #test_instance = ImageDataManager("", "", "rgbd", (1,1), xyz_ranges)
@@ -153,8 +182,8 @@ if __name__ == "__main__":
     #expected_result = [-100.2, -200.12, 300.12, 1, 2]
     #assert result == expected_result
 
-    xyz_ranges = [(-700, 700), (-600, 500), (0, 1000)]
-    test_instance = ImageDataManager("", "", "rgbd", (1,1),  [(-700, 700), (-600, 500), (0, 1000)])
-    result = test_instance.parse_expected_value("depth_0_X376.3_Y341.0_Z415.6_hand1_gest1_date03-11-2020_16#02#08_x_536_y_42")
-    expected_result = [0.5, 0.5, 0.5, 1, 2]
-    assert result == expected_result
+    #xyz_ranges = [(-700, 700), (-600, 500), (0, 1000)]
+    #test_instance = ImageDataManager("", "", "rgbd", (1,1),  [(-700, 700), (-600, 500), (0, 1000)])
+    #result = test_instance.parse_expected_value("depth_0_X376.3_Y341.0_Z415.6_hand1_gest1_date03-11-2020_16#02#08_x_536_y_42")
+    #expected_result = [0.5, 0.5, 0.5, 1, 2]
+    #assert result == expected_result
