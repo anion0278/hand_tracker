@@ -177,6 +177,7 @@ class ImageDataManager:
 
 # TODO unit test
 if __name__ == "__main__":
+    pass
     #test_instance = ImageDataManager("", "", "rgbd", (1,1), xyz_ranges)
     #result = test_instance.parse_expected_value("rgbd_1_X-100.2_Y-200.12_Z300.12_hand1_gest2_date02-12-2020_10#34#14")
     #expected_result = [-100.2, -200.12, 300.12, 1, 2]

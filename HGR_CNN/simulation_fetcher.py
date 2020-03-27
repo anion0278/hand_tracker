@@ -1,4 +1,4 @@
-import CoppeliaAPI
+import copellia_wrapper
 import numpy as np
 
 class SimulationFetcher:

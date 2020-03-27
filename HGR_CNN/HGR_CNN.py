@@ -1,5 +1,5 @@
-import cv2
 import os
+import cv2
 import sys
 import tensorflow as tf
 import pyrealsense2 as rs
@@ -7,21 +7,12 @@ import numpy as np
 import datatypes
 import image_data_manager as idm
 import dataset_generator as gen
-import cnn_model 
 import tensorboard_starter
 import predictor_facade as p
 import simulation_predictor as sp
-from time import time, strftime, gmtime
-import time as tm
 import autoencoder_wrapper as m
 import autoencoder_unet_model as current_model
 import config as c
-from datetime import datetime
-import video_fetcher as vf
-import simulation_fetcher as sf
-import visualizer as vis
-import data_logger as dl
-import results_evaluator as res
 
 record_command = "record"
 train_command = "train"
@@ -45,7 +36,7 @@ if __name__ == "__main__":
 
     m.check_gpu()
 
-    img_manager = loader.ImageDataManager(config)
+    img_manager = idm.ImageDataManager(config)
     
     if (len(sys.argv) == 1):
         c.msg("No arguments provided.")
@@ -104,6 +95,13 @@ if __name__ == "__main__":
         sys.exit(0)
 
     c.msg("Unrecognized input args. Check spelling.")
+
+#import video_fetcher as vf
+#import simulation_fetcher as sf
+#import visualizer as vis
+#import data_logger as dl
+#import results_evaluator as res
+
         #if (sys.argv[1] == online_command):
         #print("Online prediction...")
         #model_name = os.path.join(models_dir,"autoencoder_model.h5")

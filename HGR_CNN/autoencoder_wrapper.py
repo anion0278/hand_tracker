@@ -4,6 +4,7 @@ import tensorflow as tf
 import tensorflow.keras.backend as K
 from tensorflow.keras.optimizers import *
 from tensorflow.keras.callbacks import *
+from tensorflow.keras.layers import *
 from tensorflow.keras.models import *
 import config as c
 
@@ -21,7 +22,7 @@ def dice_loss(y_true, y_pred):
 def load_model(model_path, config):
     if not config.use_gpu:
         disable_gpu()
-    objs = {'dice_loss': dice_loss, "dice_coef": dice_coef}
+    objs = {'dice_loss': dice_loss, "dice_coef": dice_coef, "LeakyReLU": LeakyReLU}
     return ModelWrapper(tf.keras.models.load_model(model_path, custom_objects = objs), config)
 
 def check_gpu():

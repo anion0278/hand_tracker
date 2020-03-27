@@ -3,16 +3,14 @@ from tensorflow.keras.layers import *
 from tensorflow.keras import backend as K
 import numpy as np
 
-
 def conv_block(tensor, nfilters, size=3, padding='same', initializer="he_normal"):
     x = Conv2D(filters=nfilters, kernel_size=size, padding=padding, kernel_initializer=initializer)(tensor)
     x = BatchNormalization()(x)
-    x = Activation("relu")(x)
+    x = Activation(LeakyReLU(alpha=0.1))(x)
     x = Conv2D(filters=nfilters, kernel_size=size, padding=padding, kernel_initializer=initializer)(x)
     # TODO try network in network approach x = Conv2D(filters=int(nfilters/2), kernel_size=1, padding=padding, kernel_initializer=initializer)(x)
     x = BatchNormalization()(x)
-    x = Activation("relu")(x)
-    # TODO - handle loading of LeakyReLU models LeakyReLU(alpha=0.1)
+    x = Activation(LeakyReLU(alpha=0.1))(x)
     return x
 
 def deconv_block(tensor, residual, nfilters, size=3, padding='same', strides=(2, 2)):
