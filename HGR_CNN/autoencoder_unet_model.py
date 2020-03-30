@@ -1,3 +1,4 @@
+import tensorflow as tf
 from tensorflow.keras.models import *
 from tensorflow.keras.layers import *
 from tensorflow.keras import backend as K
@@ -56,4 +57,6 @@ def build(input_size, filters=16):
     model = Model(inputs=input_layer, outputs=output_layer, name='Unet')
     model.summary()
     # TODO show model graph tf.keras.utils.plot_model
+    tf.keras.utils.plot_model(model, to_file = "fcn.png", expand_nested= False, rankdir = "LR") 
+
     return model
