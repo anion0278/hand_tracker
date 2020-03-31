@@ -8,11 +8,12 @@ import datatypes
 import image_data_manager as idm
 import dataset_generator as gen
 import tensorboard_starter
-import predictor_facade as p
-import simulation_predictor as sp
+import predictor as p
 import autoencoder_wrapper as m
 import autoencoder_unet_model as current_model
 import config as c
+import video_catcher as vc
+import simulation_catcher as sc
 
 record_command = "record"
 train_command = "train"
@@ -28,10 +29,10 @@ new_model_path = os.path.join(config.models_dir, "new_model.h5")
 if __name__ == "__main__":
     #sys.argv = [sys.argv[0], record_command]
     #sys.argv = [sys.argv[0], train_command] 
-    sys.argv = [sys.argv[0], continue_train, "c_model.h5"] 
+    #sys.argv = [sys.argv[0], continue_train, "c_model.h5"] 
     #sys.argv = [sys.argv[0], predict_command, os.path.join(c.current_dir_path, "testdata", "test5.jpg")]
     #sys.argv = [sys.argv[0], camera_command]
-    #sys.argv = [sys.argv[0], simulation_command]
+    sys.argv = [sys.argv[0], simulation_command]
     c.msg(sys.argv) 
 
     m.check_gpu()
@@ -71,8 +72,9 @@ if __name__ == "__main__":
 
     if (sys.argv[1] == camera_command):
         c.msg("Online prediction from camera...")
+        catcher = vc.VideoImageCatcher(config)
         model = m.load_model(config.latest_model_path, config)
-        predictor = p.OnlinePredictor(model, config, img_manager)
+        predictor = p.Predictor(model,config,img_manager,catcher)
         predictor.predict_online()
         sys.exit(0)
 
@@ -89,13 +91,16 @@ if __name__ == "__main__":
 
     if (sys.argv[1] == simulation_command):
         c.msg("Online prediction from simulation...")
+        catcher = sc.SimulationCatcher(config)
         model = m.load_model(config.latest_model_path, config)
-        simulation = sp.SimulationPredictor(model, config, img_manager)
+        simulation = p.Predictor(model, config, img_manager,catcher)
         simulation.predict_online()
         sys.exit(0)
 
     c.msg("Unrecognized input args. Check spelling.")
 
+#import predictor_facade as p
+#import simulation_predictor as sp
 #import video_fetcher as vf
 #import simulation_fetcher as sf
 #import visualizer as vis

@@ -13,7 +13,7 @@ class CoppeliaAPI:
             exit()
 
     def init_simulation(self):
-        self.hand = self.GetObjectHandle('Hand')
+        self.hand = self.GetObjectHandle('Hand_ref')
         self.vision = self.GetObjectHandle('Vision_sensor')
         self.mask = self.GetObjectHandle('Vision_sensor_mask')
         self.sphere = self.GetObjectHandle('Sphere')

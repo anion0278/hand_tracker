@@ -20,7 +20,8 @@ class Configuration():
         self.epochs_count = 20
         self.test_data_ratio = 0.2
         self.learning_rate = 1.1
-        self.img_camera_size = (640, 480) 
+        self.img_camera_size = (640, 480)
+        self.camera_rate = 30
         self.img_dataset_size = (320, 240)
         self.xyz_ranges = [(-700, 700), (-600, 500), (0, 1000)]
         self.record_when_no_hand = False
