@@ -22,6 +22,7 @@
     <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="blob_recognizer.py" />
     <Compile Include="config.py" />
     <Compile Include="sim.py" />
     <Compile Include="simulation_catcher.py" />
