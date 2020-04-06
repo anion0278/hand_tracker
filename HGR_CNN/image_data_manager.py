@@ -50,15 +50,15 @@ class ImageDataManager:
     def save_image(self, image, img_path):
         cv2.imwrite(img_path, image.astype("uint8"))
 
-    def show_image(self, image, title = "Image", wait = True):
+    def show_image(self, image, title="Image", wait=True):
         cv2.imshow(title, image)
         return cv2.waitKey(-1 if wait else 1)
 
-    def overlay_text_on_img(self, image, text, y_pos, color = (255,255,0)):
+    def overlay_text_on_img(self, image, text, y_pos, color=(255,255,0)):
         font = cv2.FONT_HERSHEY_SIMPLEX
         cv2.putText(image, text, (10, y_pos), font, fontScale = 0.7, color = color, lineType = 2)
 
-    def overlay_circle_on_img(self, image, pos, color = (255,0,0)):
+    def overlay_circle_on_img(self, image, pos, color=(255,0,0)):
         cv2.circle(image, center = pos, radius = 2,  color = color, thickness=2, lineType=8, shift=0) 
 
     def stack_images(self, img1, img2):
@@ -71,13 +71,14 @@ class ImageDataManager:
         return self.stack_images(img.astype("uint8"), mask)
 
     # TODO - move all dataset stuff to dataset_manager
-    def get_autoencoder_datagens(self, flow_mode = True):
-        if flow_mode:
-            return self.__get_flow_autoencoder_datagens(self.config.dataset_dir_path, self.config.imgs_dir, self.config.masks_dir, self.config.batch_size)
+    def get_autoencoder_datagens(self, jit=True):
+        # jit -> load images in batches from folders, not all together
+        if jit:
+            return self.__get_jit_autoencoder_datagens(self.config.dataset_dir_path, self.config.imgs_dir, self.config.masks_dir, self.config.batch_size)
         else:
             raise ModuleNotFoundError("Not implemented yet!")
 
-    def __get_flow_autoencoder_datagens(self, dataset_path, imgs_dir, masks_dir, batch_size):
+    def __get_jit_autoencoder_datagens(self, dataset_path, imgs_dir, masks_dir, batch_size):
         augmentations = dict(#featurewise_center=True,
                             #featurewise_std_normalization=True,
                             #dtype = datatype
@@ -91,7 +92,8 @@ class ImageDataManager:
 
         train_steps = len(os.listdir(os.path.join(dataset_path, imgs_dir))) / batch_size
         train_gen = (pair for pair in zip(image_generator, mask_generator))
-        # TODO separate train from val: https://github.com/keras-team/keras/issues/5862
+        # TODO separate train from val:
+        # https://github.com/keras-team/keras/issues/5862
         return train_gen, 1, None, 0
 
     def __get_datagen(self, augmentations, seed, dataset_dir, class_dir, batch_size):
@@ -116,7 +118,7 @@ class ImageDataManager:
         return X_img_data, y_expected
     
     def clip_depth(self,img):
-        depth_image = np.clip(img,self.xyz_ranges[2][0],self.xyz_ranges[2][1])/self.xyz_ranges[2][1]
+        depth_image = np.clip(img,self.xyz_ranges[2][0],self.xyz_ranges[2][1]) / self.xyz_ranges[2][1]
         depth_image_filtered = (255 - 255.0 * depth_image).astype('uint8')
         resized_img = cv2.resize(depth_image_filtered, self.dataset_img_size).astype('uint8')
         return resized_img
@@ -141,7 +143,7 @@ class ImageDataManager:
         regex_name_match = re.search(f'_X{float_val_group}_Y{float_val_group}_Z{float_val_group}_hand(\d)_gest(\d)', img_name)
       
         for i in range(1,4):
-            self._FingerTipPos[i-1] = float(regex_name_match.group(i))
+            self._FingerTipPos[i - 1] = float(regex_name_match.group(i))
         self._hand = int(regex_name_match.group(4))
         self._gest = int(regex_name_match.group(5))
         return self.__posNormalizedToWorkspace
@@ -149,13 +151,13 @@ class ImageDataManager:
     def __posNormalizedToWorkspace(self):
         result = []
         for i in range(0,3):  
-            result[i] =  (self._FingerTipPos[i] + abs(self.xyz_ranges[i][0]))  / (abs(self.xyz_ranges[i][0]) +  self.xyz_ranges[i][1])
+            result[i] = (self._FingerTipPos[i] + abs(self.xyz_ranges[i][0])) / (abs(self.xyz_ranges[i][0]) + self.xyz_ranges[i][1])
         return result
 
 
        
     def decode_predicted(self,img):
-        return 255*img
+        return 255 * img
 
     def encode_camera_image(self,source):
         image = self.clip_depth(source)

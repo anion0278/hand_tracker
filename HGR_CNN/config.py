@@ -37,6 +37,11 @@ class Configuration():
         self.models_dir = os.path.join(current_dir_path, "models") 
         self.logs_dir = os.path.join(current_dir_path, "logs", self.version_name+f"_LR{self.learning_rate}_{date_time_str}")
         self.latest_model_path = os.path.join(self.models_dir, latest_model_name)
-       
+        self.status_print()
+
+    def status_print(self):
+        msg(f"Version: {self.version_name}") 
+        msg(f"Debug: {self.DEBUG}") 
+
     def msg(self, message):
         msg(message = message)
