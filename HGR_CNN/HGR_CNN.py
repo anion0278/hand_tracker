@@ -23,7 +23,7 @@ continue_train = "continue_train"
 camera_command = "camera_prediction"
 simulation_command = "simulation_prediction"
 
-config = c.Configuration(version_name = "autoencoder", debug_mode=True, latest_model_name="fcn_model.h5")
+config = c.Configuration(version_name = "autoencoder", debug_mode=True, latest_model_name="autoencoder_model.h5")
 
 new_model_path = os.path.join(config.models_dir, "new_model.h5")
 

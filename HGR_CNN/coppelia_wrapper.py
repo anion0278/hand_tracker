@@ -13,7 +13,7 @@ class CoppeliaAPI:
             exit()
 
     def init_simulation(self):
-        self.hand = self.GetObjectHandle('Hand_ref')
+        self.hand = self.GetObjectHandle('Hand')
         self.vision = self.GetObjectHandle('Vision_sensor')
         self.mask = self.GetObjectHandle('Vision_sensor_mask')
         self.sphere = self.GetObjectHandle('Sphere')
@@ -29,9 +29,8 @@ class CoppeliaAPI:
         if err == sim.simx_return_ok:
             img = np.array(image,dtype=np.uint8)
             img.resize([resolution[1],resolution[0],3])
-            img = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
-            imgFlip = cv.flip(img,0)
-            return imgFlip
+            img = img[:,:,1]
+            return img
         else:
             print(err)
         return None
@@ -41,9 +40,8 @@ class CoppeliaAPI:
         if err == sim.simx_return_ok:
             img = np.array(image,dtype=np.uint8)
             img.resize([resolution[1],resolution[0],3])
-            img = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
-            imgFlip = cv.flip(img,0)
-            ret,img_out = cv.threshold(imgFlip,10,255,cv.THRESH_BINARY)
+            img = img[:,:,1]
+            ret,img_out = cv.threshold(img,10,255,cv.THRESH_BINARY)
 
             return img_out
         else:

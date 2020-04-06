@@ -1,10 +1,12 @@
+import results_evaluator as re
 class Predictor:
     def __init__(self, model, config, image_manager,catcher):
         self.catcher = catcher
         self.catcher.init_stream()
         self.image_manager = image_manager
-        self.config = config
+        self.config = config #not used
         self.model = model
+        evaluator = re.ResultsEvaluator()
 
     def predict(self):
         try:
