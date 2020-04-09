@@ -59,7 +59,7 @@ class ImageDataManager:
         cv2.putText(image, text, (10, y_pos), font, fontScale = 0.7, color = color, lineType = 2)
 
     def overlay_circle_on_img(self, image, pos, color=(255,0,0)):
-        cv2.circle(image, center = pos, radius = 2,  color = color, thickness=2, lineType=8, shift=0) 
+        cv2.circle(image, center = (int(pos[0]),int(pos[1])), radius = 2,  color = color, thickness=2, lineType=8, shift=0) 
 
     def stack_images(self, img1, img2):
         return np.hstack((img1, img2))

@@ -3,9 +3,13 @@ import numpy as np
 
 class SimulationCatcher:
     """class for capturing image from CoppeliaSim simulation"""
+    record_flag = False
+    fingertip_pos = [0,0,0]
+    hand_pos = [0,0,0]
 
     def __init__(self,config):
         self.__streaming = False
+        self.config = config
 
     def init_stream(self):
         self.__pipeline = sim_wrapper.CoppeliaAPI()
@@ -16,11 +20,15 @@ class SimulationCatcher:
         self.__streaming = False
         self.__pipeline.stopSimulation()
 
-    def __fetch_image(self):
+    def __fetch_data(self):
         if self.__streaming:
             try:
+                self.__pipeline.move_sim()
                 image = self.__pipeline.get_cam_image()
-                return image
+                mask = self.__pipeline.get_mask()
+                self.fingertip_pos = self.__pipeline.get_fingertip_pos()
+                self.hand_pos = self.__pipeline.get_hand_pos()
+                return image,mask
 
             except Exception as ex:
                print('Exception during streaming.. %' % ex)
@@ -30,22 +38,16 @@ class SimulationCatcher:
             return None
     
     def get_depth_img(self):
-        dm = self.__fetch_image()
+        dm,_ = self.__fetch_data()
         return dm
 
-    def __fetch_mask(self):
-        if self.__streaming:
-            try:
-                image = self.__pipeline.GetMask()
-                return image
-
-            except Exception as ex:
-               print('Exception during streaming.. %' % ex)
-               return None
-        else:
-            print("Streaming not initialized")
-            return None
-   
     def get_mask(self):
-        mask = self.__fetch_mask()
+        _,mask = self.__fetch_data()
         return mask
+    def get_data(self):
+        img,mask = self.__fetch_data()
+        return img,mask
+
+    def get_fingertip_pos(self):
+        if self.__streaming:
+            return self.fingertip_pos

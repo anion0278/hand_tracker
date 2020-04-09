@@ -29,6 +29,10 @@ class Configuration():
         self.imgs_dir = "dataset-aug"
         self.masks_dir = "mask-aug"
 
+        self.benchmark = True
+        self.benchmark_start = (-0.05,0.04,0.738)
+        self.benchmark_file = os.path.join(current_dir_path,"logs","benchmark.csv")
+
         if self.DEBUG:
             self.imgs_dir = "dataset-test"
             self.masks_dir = "mask-test"  
