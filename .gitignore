@@ -313,3 +313,9 @@ ModelManifest.xml
 /HGR_CNN/test5.jpg
 /HGR_CNN/fcn.png
 /HGR_CNN/ae.png
+/HGR_CNN/test_gpu.onnx
+/HGR_CNN/street.jpg
+/HGR_CNN/arch.png
+/HGR_CNN/ae_model_gpu.onnx
+/HGR_CNN/fcn_new.onnx
+/HGR_CNN/autoencoder.png

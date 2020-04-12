@@ -16,7 +16,7 @@ class Configuration():
         self.DEBUG = debug_mode
         self.datatype = "float32"
         self.filters_count = 16
-        self.batch_size = 50
+        self.batch_size = 40
         self.epochs_count = 20
         self.test_data_ratio = 0.2
         self.learning_rate = 1.1
@@ -25,7 +25,9 @@ class Configuration():
         self.img_dataset_size = (320, 240)
         self.xyz_ranges = [(-700, 700), (-600, 500), (0, 1000)]
         self.record_when_no_hand = False
-        self.use_gpu = False
+        self.use_gpu = True
+        #self.imgs_dir = "dataset-orig"
+        #self.masks_dir = "mask-orig"
         self.imgs_dir = "dataset-aug"
         self.masks_dir = "mask-aug"
 

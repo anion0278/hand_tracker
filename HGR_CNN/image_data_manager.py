@@ -90,11 +90,11 @@ class ImageDataManager:
         #TODO add preprocessing_function = binarization_norm
         mask_generator = self.__get_datagen(augmentations, seed, dataset_path, masks_dir, batch_size)
 
-        train_steps = len(os.listdir(os.path.join(dataset_path, imgs_dir))) / batch_size
+        train_steps = np.floor(len(os.listdir(os.path.join(dataset_path, imgs_dir))) / batch_size)
         train_gen = (pair for pair in zip(image_generator, mask_generator))
         # TODO separate train from val:
         # https://github.com/keras-team/keras/issues/5862
-        return train_gen, 1, None, 0
+        return train_gen, train_steps, None, 0
 
     def __get_datagen(self, augmentations, seed, dataset_dir, class_dir, batch_size):
         datagen = ImageDataGenerator(**augmentations,) 
