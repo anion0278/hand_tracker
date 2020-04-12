@@ -23,17 +23,17 @@ continue_train = "continue_train"
 camera_command = "camera_prediction"
 simulation_command = "simulation_prediction"
 
-config = c.Configuration(version_name = "autoencoder", debug_mode=False, latest_model_name="fcn_model_NEW.h5")
+config = c.Configuration(version_name = "autoencoder", debug_mode=True, latest_model_name="autoencoder_model.h5")
 
 new_model_path = os.path.join(config.models_dir, "new_model.h5")
 
 if __name__ == "__main__":
     #sys.argv = [sys.argv[0], record_command]
-    sys.argv = [sys.argv[0], train_command] 
-    #sys.argv = [sys.argv[0], continue_train, "fcn_model_NEW.h5"] 
-    #sys.argv = [sys.argv[0], predict_command, os.path.join(c.current_dir_path, "testdata", "rgbd1.png")]
+    #sys.argv = [sys.argv[0], train_command] 
+    #sys.argv = [sys.argv[0], continue_train, "c_model.h5"] 
+    #sys.argv = [sys.argv[0], predict_command, os.path.join(c.current_dir_path, "testdata", "test5.jpg")]
     #sys.argv = [sys.argv[0], camera_command]
-    #sys.argv = [sys.argv[0], simulation_command]
+    sys.argv = [sys.argv[0], simulation_command]
     c.msg(sys.argv) 
 
     m.check_gpu()
