@@ -22,15 +22,31 @@
     <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="blob_recognizer.py" />
+    <Compile Include="config.py" />
+    <Compile Include="sim.py" />
+    <Compile Include="simulation_catcher.py" />
+    <Compile Include="sim_const.py" />
+    <Compile Include="simulation_predictor.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="coppelia_wrapper.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="cnn_model.py" />
     <Compile Include="dataset_generator.py" />
     <Compile Include="datatypes.py" />
     <Compile Include="HGR_CNN.py" />
-    <Compile Include="image_data_loader.py" />
+    <Compile Include="image_data_manager.py" />
     <Compile Include="predictor_facade.py" />
     <Compile Include="simple_recognizer.py" />
+    <Compile Include="video_catcher.py" />
   </ItemGroup>
-  <ItemGroup />
+
+  <ItemGroup>
+    <Content Include="remoteApi.dll" />
+  </ItemGroup>
+
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
   </PropertyGroup>
