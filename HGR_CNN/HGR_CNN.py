@@ -59,6 +59,7 @@ if __name__ == "__main__":
         c.msg("Training...")
         model = m.ModelWrapper(current_model.build(config.img_dataset_size), config)
         model.recompile()
+        model.save_model_graph_img() # possibly visualize
         model.train(*img_manager.get_autoencoder_datagens())
         model.save(new_model_path)
         sys.exit(0)

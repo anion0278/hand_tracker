@@ -7,22 +7,24 @@ import numpy as np
 def conv_block(tensor, nfilters, size=3, padding='same', initializer="he_normal"):
     x = Conv2D(filters=nfilters, kernel_size=size, padding=padding, kernel_initializer=initializer)(tensor)
     x = BatchNormalization()(x)
-    x = Activation(LeakyReLU(alpha=0.1))(x)
+    x = LeakyReLU(alpha=0.2)(x) # Leaky ReLU should be used as a layer, not as activation
     x = Conv2D(filters=nfilters, kernel_size=size, padding=padding, kernel_initializer=initializer)(x)
     # TODO try network in network approach x = Conv2D(filters=int(nfilters/2), kernel_size=1, padding=padding, kernel_initializer=initializer)(x)
     x = BatchNormalization()(x)
-    x = Activation(LeakyReLU(alpha=0.1))(x)
+    x = LeakyReLU(alpha=0.2)(x)
     return x
 
 def deconv_block(tensor, residual, nfilters, size=3, padding='same', strides=(2, 2)):
-    y = Conv2DTranspose(nfilters, kernel_size=(size, size), strides=strides, padding=padding)(tensor)
+    y = UpSampling2D()(tensor)
+    y = Conv2DTranspose(nfilters, kernel_size=(size, size), padding=padding)(y)
     y = concatenate([y, residual], axis=3)
     y = conv_block(y, nfilters)
     return y
 
 def build(input_size, filters=16):
 # encoder
-    input_layer = Input(shape=(*input_size, 1), name='image_input')
+    # input 240 x 320 x 1
+    input_layer = Input(shape=(input_size[1], input_size[0], 1), name='image_input')
     conv1 = conv_block(input_layer, nfilters=filters)
     conv1_out = MaxPooling2D(pool_size=(2, 2))(conv1)
     conv2 = conv_block(conv1_out, nfilters=filters*2)
@@ -57,6 +59,6 @@ def build(input_size, filters=16):
     model = Model(inputs=input_layer, outputs=output_layer, name='Unet')
     model.summary()
     # TODO show model graph tf.keras.utils.plot_model
-    tf.keras.utils.plot_model(model, to_file = "fcn.png", expand_nested= False, rankdir = "LR") 
+    
 
     return model

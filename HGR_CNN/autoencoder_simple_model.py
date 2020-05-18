@@ -9,7 +9,7 @@ def build(input_size, depth = 1, filters=(32, 32, 64, 64)):
 	# initialize the input shape to be "channels last" along with
 	# the channels dimension itself
 	# channels dimension itself
-	inputShape = (*input_size, depth)
+	inputShape = (input_size[1], input_size[0], depth)
 
 	latentDim = 20
 
@@ -58,6 +58,5 @@ def build(input_size, depth = 1, filters=(32, 32, 64, 64)):
 	autoencoder = Model(inputs, decoder(encoder(inputs)), name="autoencoder")
 
 	autoencoder.summary()
-	tf.keras.utils.plot_model(autoencoder, to_file = "arch.png", expand_nested= True, ) #show_shapes=True
 
 	return autoencoder
