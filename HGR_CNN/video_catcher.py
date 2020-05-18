@@ -76,4 +76,11 @@ class VideoImageCatcher:
     def get_depth_raw(self):
         di,_,_ = self.__fetch_image()
         return di
+    def get_data(self): #todo
+        _,_,dm = self.__fetch_image()
+        return dm,dm
+
+    def get_fingertip_pos(self): #todo
+        if self.__streaming:
+            return [0,0,0]
 

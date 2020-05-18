@@ -8,6 +8,7 @@ class CoppeliaAPI:
         sim.simxFinish(-1)
         self.__clientID = sim.simxStart('127.0.0.1',19999,True,True,5000,5)
         if self.__clientID!=-1:
+            sim.simxSynchronous(self.__clientID,true)
             print ('Connected to remote API server')
         else:
             exit()
