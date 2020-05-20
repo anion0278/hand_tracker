@@ -34,7 +34,7 @@ class VideoImageCatcher:
             self.__streaming = True
             return True
         except Exception as ex:
-            print('Camera not connected.. %' % ex)
+            print('Camera not connected.. ')
             return False
 
     def close_stream(self):

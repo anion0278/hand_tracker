@@ -8,7 +8,7 @@ class CoppeliaAPI:
         sim.simxFinish(-1)
         self.__clientID = sim.simxStart('127.0.0.1',19999,True,True,5000,5)
         if self.__clientID!=-1:
-            sim.simxSynchronous(self.__clientID,true)
+            #sim.simxSynchronous(self.__clientID,True)
             print ('Connected to remote API server')
         else:
             exit()
@@ -43,8 +43,8 @@ class CoppeliaAPI:
             img = np.array(image,dtype=np.uint8)
             img.resize([resolution[1],resolution[0],3])
             img = img[:,:,1]
-            _,img_out = cv.threshold(img,10,255,cv.THRESH_BINARY)
-            return img_out
+            #_,img_out = cv.threshold(img,10,255,cv.THRESH_BINARY)
+            return img#_out
         else:
             print(err)
         return None
