@@ -49,7 +49,7 @@ class ModelWrapper():
 
     def save_model_graph_img(self):
         img_name = self.config.version_name+".png"
-        tf.keras.utils.plot_model(self.model, to_file = img_name, expand_nested=True, show_shapes=True)  #rankdir = "LR",
+        #tf.keras.utils.plot_model(self.model, to_file = img_name, expand_nested=True, show_shapes=True)  #rankdir = "LR",
         return img_name
 
     def train(self, train_data_gen, train_steps, val_data_gen=None, val_steps=0):

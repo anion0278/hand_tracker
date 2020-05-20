@@ -40,11 +40,11 @@ class ImageDataManager:
         return cv2.resize(image,self.img_dataset_size).astype(self.config.datatype)
 
     def __load_resized(self, img_path):
-        if img_path.endswith(".png"):
+        # if img_path.endswith(".png"):
             # load from png 4-channel image
-            img = cv2.imread(img_path, cv2.IMREAD_UNCHANGED)[:,:,3]
-        else:
-            img = cv2.imread(img_path, cv2.IMREAD_GRAYSCALE)
+            # img = cv2.imread(img_path, cv2.IMREAD_UNCHANGED)[:,:,3]
+        # else:
+        img = cv2.imread(img_path, cv2.IMREAD_GRAYSCALE)
         return self.prepare_image(img)
 
     def save_image(self, image, img_path):
@@ -82,7 +82,9 @@ class ImageDataManager:
         augmentations = dict(#featurewise_center=True,
                             #featurewise_std_normalization=True,
                             #dtype = datatype
-                            rescale=1. / 255.0,)
+                            rescale=1. / 255.0,
+                            horizontal_flip = True,
+                            vertical_flip = True)
 
         seed = 1
         image_generator = self.__get_datagen(augmentations, seed, dataset_path, imgs_dir, batch_size)
