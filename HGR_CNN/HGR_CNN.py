@@ -29,10 +29,10 @@ new_model_path = os.path.join(config.models_dir, "new_model.h5")
 
 if __name__ == "__main__":
     #sys.argv = [sys.argv[0], record_command]
-    sys.argv = [sys.argv[0], train_command] 
+    #sys.argv = [sys.argv[0], train_command] 
     #sys.argv = [sys.argv[0], continue_train, "c_model.h5"] 
     #sys.argv = [sys.argv[0], predict_command, os.path.join(c.current_dir_path, "testdata", "test5.jpg")]
-    #sys.argv = [sys.argv[0], camera_command]
+    sys.argv = [sys.argv[0], camera_command]
     #sys.argv = [sys.argv[0], simulation_command]
     c.msg(sys.argv) 
 
