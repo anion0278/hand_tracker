@@ -16,7 +16,7 @@ class BlobRecognizer():
         upper = (80+sensitivity,255,255)  
         lower = (80-sensitivity,70,50)
         hsv = cv2.cvtColor(image,cv2.COLOR_BGR2HSV)
-        mask = cv2.inRange(image, lower, upper)
+        mask = cv2.inRange(hsv, lower, upper)
         return mask
 
 
