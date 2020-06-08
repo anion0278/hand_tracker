@@ -19,7 +19,7 @@ class Configuration():
         self.batch_size = 40
         self.epochs_count = 20
         self.test_data_ratio = 0.2
-        self.learning_rate = 1.1
+        self.learning_rate = 1.0
         self.img_camera_size = (640, 480)
         self.camera_rate = 30
         self.img_dataset_size = (320, 240)
@@ -28,8 +28,8 @@ class Configuration():
         self.use_gpu = True
         #self.imgs_dir = "dataset-orig"
         #self.masks_dir = "mask-orig"
-        self.imgs_dir = "dataset-aug"
-        self.masks_dir = "mask-aug"
+        self.imgs_dir = "img"
+        self.masks_dir = "mask2"
 
         self.benchmark = False
         self.benchmark_start = (-0.05,0.04,0.738)
