@@ -2,7 +2,6 @@ import numpy as np
 import os
 import cv2
 import re
-from tensorflow.keras.preprocessing.image import ImageDataGenerator
 import blob_recognizer as b
 
 def binarization_norm(image):
@@ -70,46 +69,11 @@ class ImageDataManager:
             self.overlay_circle_on_img(img, center) 
         return self.stack_images(img.astype("uint8"), mask)
 
-    # TODO - move all dataset stuff to dataset_manager
-    def get_autoencoder_datagens(self, jit=True):
-        # jit -> load images in batches from folders, not all together
-        if jit:
-            return self.__get_jit_autoencoder_datagens(self.config.dataset_dir_path, self.config.imgs_dir, self.config.masks_dir, self.config.batch_size)
-        else:
-            raise ModuleNotFoundError("Not implemented yet!")
-
-    def __get_jit_autoencoder_datagens(self, dataset_path, imgs_dir, masks_dir, batch_size):
-        augmentations = dict(#featurewise_center=True,
-                            #featurewise_std_normalization=True,
-                            #dtype = datatype
-                            rescale=1. / 255.0,
-                            horizontal_flip = True,
-                            vertical_flip = True)
-
-        seed = 1
-        image_generator = self.__get_datagen(augmentations, seed, dataset_path, imgs_dir, batch_size)
-
-        #TODO add preprocessing_function = binarization_norm
-        mask_generator = self.__get_datagen(augmentations, seed, dataset_path, masks_dir, batch_size)
-
-        train_steps = np.floor(len(os.listdir(os.path.join(dataset_path, imgs_dir))) / batch_size)
-        train_gen = (pair for pair in zip(image_generator, mask_generator))
-        # TODO separate train from val:
-        # https://github.com/keras-team/keras/issues/5862
-        return train_gen, train_steps, None, 0
-
-    def __get_datagen(self, augmentations, seed, dataset_dir, class_dir, batch_size):
-        datagen = ImageDataGenerator(**augmentations,) 
-        #preprocessing_function = binarization_norm
-        generator = datagen.flow_from_directory(dataset_dir,
-                                                        class_mode=None,
-                                                        classes=[class_dir],
-                                                        color_mode="grayscale",
-                                                        target_size=reversed(self.img_dataset_size), # h, w !
-                                                        seed=seed, batch_size = batch_size)
-        generator.next()
-        return generator
-
+    def get_iteration_name(self,iteration,pos,folder):
+        img_name = "{}_{}.png".format(iteration,pos)
+        name = os.path.join(folder,img_name)
+        return name
+    
     # Regression model compatibility
     def load_single_dataset_img(self, img_path):
         img_path = os.path.join(self.main_script_path, img_relative_path)

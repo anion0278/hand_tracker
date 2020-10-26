@@ -252,3 +252,7 @@ ModelManifest.xml
 /HGR_CNN/img1_Color_Color.png
 /HGR_CNN/img2_Color.png
 /dataset
+/coppelia
+/camera_image
+/HGR_CNN/models
+/HGR_CNN/testdata

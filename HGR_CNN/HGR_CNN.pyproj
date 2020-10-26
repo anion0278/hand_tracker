@@ -24,6 +24,9 @@
   <ItemGroup>
     <Compile Include="blob_recognizer.py" />
     <Compile Include="config.py" />
+    <Compile Include="dataset_manager.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="sim.py" />
     <Compile Include="simulation_catcher.py" />
     <Compile Include="sim_const.py" />
@@ -42,11 +45,9 @@
     <Compile Include="simple_recognizer.py" />
     <Compile Include="video_catcher.py" />
   </ItemGroup>
-
   <ItemGroup>
     <Content Include="remoteApi.dll" />
   </ItemGroup>
-
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
   </PropertyGroup>

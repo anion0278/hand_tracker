@@ -17,7 +17,10 @@ class VideoImageCatcher:
         
         self.__colorizer = rs.colorizer()
         self.__colorizer.set_option(rs.option.color_scheme, 2)
-        self.__filter = rs.hole_filling_filter()
+        self.__filter_HF = rs.hole_filling_filter()
+        self.__filter_D = rs.decimation_filter() 
+        self.__filter_D.set_option(rs.option.filter_magnitude,4)
+        self.__filter_T = rs.temporal_filter()
 
         try:
             profile = self.__pipeline.start(pipeline_config)
@@ -54,7 +57,10 @@ class VideoImageCatcher:
 
                 depth_image = np.asanyarray(depth_frame.get_data())
                 color_image = np.asanyarray(color_frame.get_data())
-                depth_colorized = np.asanyarray(self.__colorizer.colorize(self.__filter.process(depth_frame)).get_data())
+                filtered = self.__filter_HF.process(depth_frame)
+                filtered = self.__filter_T.process(filtered)
+                filtered = self.__colorizer.colorize(filtered)
+                depth_colorized = np.asanyarray(filtered.get_data())
                 depth_colorized = depth_colorized[:,:,1]
                 return depth_image,color_image,depth_colorized
 
@@ -77,8 +83,8 @@ class VideoImageCatcher:
         di,_,_ = self.__fetch_image()
         return di
     def get_data(self): #todo
-        _,_,dm = self.__fetch_image()
-        return dm,dm
+        _,ci,dm = self.__fetch_image()
+        return ci,dm
 
     def get_fingertip_pos(self): #todo
         if self.__streaming:

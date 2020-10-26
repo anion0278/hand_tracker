@@ -15,6 +15,7 @@ import autoencoder_unet_model as current_model
 import config as c
 import video_catcher as vc
 import simulation_catcher as sc
+import dataset_manager as dm
 
 record_command = "record"
 train_command = "train"
@@ -23,15 +24,17 @@ continue_train = "continue_train"
 camera_command = "camera_prediction"
 simulation_command = "simulation_prediction"
 
+#config = c.Configuration(version_name = "autoencoder", debug_mode=False, latest_model_name="full_hand.h5")
 config = c.Configuration(version_name = "autoencoder", debug_mode=False, latest_model_name="new_model.h5")
+
 
 new_model_path = os.path.join(config.models_dir, "new_model.h5")
 
 if __name__ == "__main__":
     #sys.argv = [sys.argv[0], record_command]
     #sys.argv = [sys.argv[0], train_command] 
-    #sys.argv = [sys.argv[0], continue_train, "c_model.h5"] 
-    #sys.argv = [sys.argv[0], predict_command, os.path.join(c.current_dir_path, "testdata", "test5.jpg")]
+    #sys.argv = [sys.argv[0], continue_train, "latest_checkpoint.h5"] 
+    #sys.argv = [sys.argv[0], predict_command, os.path.join(c.current_dir_path, "testdata", "test2.png")]
     sys.argv = [sys.argv[0], camera_command]
     #sys.argv = [sys.argv[0], simulation_command]
     c.msg(sys.argv) 
@@ -57,18 +60,20 @@ if __name__ == "__main__":
 
     if (sys.argv[1] == train_command):
         c.msg("Training...")
+        dataset_manager = dm.DatasetManager(config)
         model = m.ModelWrapper(current_model.build(config.img_dataset_size), config)
         model.recompile()
         model.save_model_graph_img() # possibly visualize
-        model.train(*img_manager.get_autoencoder_datagens())
+        model.train(*dataset_manager.get_autoencoder_datagens())
         model.save(new_model_path)
         sys.exit(0)
 
     if (sys.argv[1] == continue_train and not(sys.argv[2].isspace())): 
         prev_model_name = sys.argv[2]
+        dataset_manager = dm.DatasetManager(config)
         c.msg(f"Continue training of {prev_model_name}...")
         model = m.load_model(os.path.join(config.models_dir, prev_model_name), config)
-        model.train(*img_manager.get_autoencoder_datagens())
+        model.train(*dataset_manager.get_autoencoder_datagens())
         model.save(new_model_path)
         sys.exit(0)
 
