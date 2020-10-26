@@ -13,14 +13,29 @@ class Predictor:
         self.config = config #not used
         self.model = model
         self.evaluator = re.ResultsEvaluator()
+        self.iteration = 0
 
     def predict(self):
         try:
             image,sim_mask = self.catcher.get_data()
-            depth = self.image_manager.prepare_image(image)
+            depth = self.image_manager.prepare_image(sim_mask)
             mask = self.image_manager.prepare_image(sim_mask)
+            rgb = self.image_manager.prepare_image(image)
+ 
             self.real_pos = b.find_blob(mask)
             predicted_mask = self.model.predict_single(depth)
+
+            pos_hand = b.find_hand(self.config.img_dataset_size,predicted_mask)
+            img_name = self.image_manager.get_iteration_name(self.iteration,pos_hand,self.config.camera_depth_dir)
+            self.image_manager.save_image(depth,img_name)
+
+            
+            #img_name = self.image_manager.get_iteration_name(self.iteration,pos_hand,self.config.camera_RGB_dir)
+            #self.image_manager.save_image(rgb,img_name)
+
+            img_name = self.image_manager.get_iteration_name(self.iteration,pos_hand,self.config.camera_predicted_dir)
+            self.image_manager.save_image(predicted_mask,img_name)
+            
             self.predicted_pos = b.find_blob(predicted_mask)
             combined = self.image_manager.img_mask_alongside(depth, predicted_mask)
             self.image_manager.show_image(combined, wait = False) 
@@ -52,7 +67,7 @@ class Predictor:
                    fault = self.evaluator.get_fault_pix(self.real_pos,self.predicted_pos)
                    data = str("{},{},{},{},{},{},{},{}".format(pos[0],pos[1],pos[2],self.real_pos[0],self.real_pos[1],self.predicted_pos[0],self.predicted_pos[1],fault))
                    logger.log_data(data)
-              
+               self.iteration +=1
                
         except KeyboardInterrupt: # CTRL + C
             self.config.msg("Closing...")

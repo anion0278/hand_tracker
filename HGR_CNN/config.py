@@ -30,6 +30,8 @@ class Configuration():
         #self.masks_dir = "mask-orig"
         self.imgs_dir = "img"
         self.masks_dir = "mask2"
+        self.val_imgs_dir = "img-valid"
+        self.val_masks_dir = "mask2-valid"
 
         self.benchmark = False
         self.benchmark_start = (-0.05,0.04,0.738)
@@ -43,6 +45,11 @@ class Configuration():
         self.models_dir = os.path.join(current_dir_path, "models") 
         self.logs_dir = os.path.join(current_dir_path, "logs", self.version_name+f"_LR{self.learning_rate}_{date_time_str}")
         self.latest_model_path = os.path.join(self.models_dir, latest_model_name)
+
+        self.camera_image_dir = os.path.join(current_dir_path, os.pardir, "camera_image")
+        self.camera_RGB_dir = os.path.join(self.camera_image_dir,"RGB")
+        self.camera_depth_dir = os.path.join(self.camera_image_dir,"Depth")
+        self.camera_predicted_dir = os.path.join(self.camera_image_dir,"Predicted")
         self.status_print()
 
     def status_print(self):

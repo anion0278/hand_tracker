@@ -52,7 +52,7 @@ class ModelWrapper():
         #tf.keras.utils.plot_model(self.model, to_file = img_name, expand_nested=True, show_shapes=True)  #rankdir = "LR",
         return img_name
 
-    def train(self, train_data_gen, train_steps, val_data_gen=None, val_steps=0):
+    def train(self, train_data_gen, train_steps, val_data_gen, val_steps):
         tensorboard = TensorBoard(log_dir=self.config.logs_dir)
 
         # TODO monitor "loss" -> change to "val_loss" if val_data_gen is available and val_steps > 1
@@ -74,8 +74,8 @@ class ModelWrapper():
 
         #early_stopping_callback = EarlyStopping(monitor="loss", min_delta=0.01, patience=5, verbose=1, mode="auto")
 
-        history = self.model.fit(train_data_gen, #validation_data=val_data_gen, 
-                                  epochs = self.config.epochs_count, steps_per_epoch = train_steps,
+        history = self.model.fit(train_data_gen, validation_data=val_data_gen, 
+                                  epochs = self.config.epochs_count, steps_per_epoch = train_steps, validation_steps = val_steps,
                                   max_queue_size=50,                # maximum size for the generator queue
                                   workers=8,                        # maximum number of processes 
                                   use_multiprocessing=True,         # use threading (maybe does not work on Win)
