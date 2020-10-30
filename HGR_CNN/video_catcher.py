@@ -17,10 +17,13 @@ class VideoImageCatcher:
         
         self.__colorizer = rs.colorizer()
         self.__colorizer.set_option(rs.option.color_scheme, 2)
+        self.__colorizer.set_option(rs.option.min_distance,0)
+        self.__colorizer.set_option(rs.option.max_distance,1)
+        self.__colorizer.set_option(rs.option.visual_preset,0)
+        self.__colorizer.set_option(rs.option.histogram_equalization_enabled,0)
         self.__filter_HF = rs.hole_filling_filter()
-        self.__filter_D = rs.decimation_filter() 
-        self.__filter_D.set_option(rs.option.filter_magnitude,4)
-        self.__filter_T = rs.temporal_filter()
+        self.__filter_HF.set_option(rs.option.holes_fill, 3)
+
 
         try:
             profile = self.__pipeline.start(pipeline_config)
@@ -58,7 +61,6 @@ class VideoImageCatcher:
                 depth_image = np.asanyarray(depth_frame.get_data())
                 color_image = np.asanyarray(color_frame.get_data())
                 filtered = self.__filter_HF.process(depth_frame)
-                filtered = self.__filter_T.process(filtered)
                 filtered = self.__colorizer.colorize(filtered)
                 depth_colorized = np.asanyarray(filtered.get_data())
                 depth_colorized = depth_colorized[:,:,1]
