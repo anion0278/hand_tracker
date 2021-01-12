@@ -21,7 +21,7 @@ class BlobRecognizer():
 
 
     def __find_blob_binary(self,image):
-        try:
+        try: # this can be handled by utils method: cnts = imutils.grab_contours(cnts), see: https://www.pyimagesearch.com/2016/02/01/opencv-center-of-contour/
             _, contours,_ = cv2.findContours(image.astype("uint8"), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
         except:
             contours,_ = cv2.findContours(image.astype("uint8"), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
