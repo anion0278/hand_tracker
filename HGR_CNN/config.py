@@ -17,10 +17,10 @@ class Configuration():
         self.datatype = "float32"
         self.filters_count = 16
         self.batch_size = 40
-        self.epochs_count = 20
+        self.epochs_count = 8
         self.test_data_ratio = 0.2
         self.learning_rate = 1.0
-        self.img_camera_size = (848, 480)
+        self.img_camera_size = (640, 480)
         self.camera_rate = 30
         self.img_dataset_size = (320, 240)
         self.xyz_ranges = [(-700, 700), (-600, 500), (0, 1000)]
@@ -47,9 +47,13 @@ class Configuration():
         self.latest_model_path = os.path.join(self.models_dir, latest_model_name)
 
         self.camera_image_dir = os.path.join(current_dir_path, os.pardir, "camera_image")
-        self.camera_RGB_dir = os.path.join(self.camera_image_dir,"RGB")
-        self.camera_depth_dir = os.path.join(self.camera_image_dir,"Depth")
-        self.camera_predicted_dir = os.path.join(self.camera_image_dir,"Predicted")
+        self.camera_RGB_dir = "RGB"
+        self.camera_depth_dir = "Depth"
+        self.camera_label_dir = "Labeled"
+        self.camera_predicted_dir = "Predicted"
+        self.camera_RGB_path = os.path.join(self.camera_image_dir,self.camera_RGB_dir)
+        self.camera_depth_path = os.path.join(self.camera_image_dir,self.camera_depth_dir)
+        self.camera_predicted_path = os.path.join(self.camera_image_dir,self.camera_predicted_dir)
         self.status_print()
 
     def status_print(self):

@@ -25,20 +25,24 @@ class Predictor:
             self.real_pos = b.find_blob(mask)
             predicted_mask = self.model.predict_single(depth)
 
-            pos_hand = b.find_hand(self.config.img_dataset_size,predicted_mask)
-            img_name = self.image_manager.get_iteration_name(self.iteration,pos_hand,self.config.camera_depth_dir)
-            self.image_manager.save_image(depth,img_name)
+            #pos_hand = b.find_hand(self.config.img_dataset_size,predicted_mask)
+            #img_name = self.image_manager.get_iteration_name(self.iteration,pos_hand[2],self.config.camera_depth_path)
+            #self.image_manager.save_image(depth,img_name)
 
             
-            #img_name = self.image_manager.get_iteration_name(self.iteration,pos_hand,self.config.camera_RGB_dir)
-            #self.image_manager.save_image(rgb,img_name)
+           # img_name = self.image_manager.get_iteration_name(self.iteration,pos_hand[2],self.config.camera_RGB_path)
+           # self.image_manager.save_image(rgb,img_name)
 
-            img_name = self.image_manager.get_iteration_name(self.iteration,pos_hand,self.config.camera_predicted_dir)
-            self.image_manager.save_image(predicted_mask,img_name)
+            #img_name = self.image_manager.get_iteration_name(self.iteration,pos_hand[2],self.config.camera_predicted_path)
+            #self.image_manager.save_image(predicted_mask,img_name)
             
-            self.predicted_pos = b.find_blob(predicted_mask)
-            combined = self.image_manager.img_mask_alongside(depth, predicted_mask)
+            #self.predicted_pos = b.find_blob(predicted_mask)
+            detected,x,y,w = b.find_hand(self.config.img_dataset_size,predicted_mask)
+            combined = self.image_manager.img_mask_alongside(depth,detected)
             self.image_manager.show_image(combined, wait = False) 
+
+            #img_name = self.image_manager.get_iteration_name(self.iteration,(x,y,w),self.config.camera_RGB_dir)
+            #self.image_manager.save_image(rgb,img_name)
 
             if self.config.benchmark:
                 if self.predicted_pos is not None:

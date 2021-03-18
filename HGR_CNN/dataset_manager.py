@@ -62,3 +62,33 @@ class DatasetManager:
         generator.next()
         return generator
 
+    def get_eval_datagens(self):
+        dataset_path = self.config.camera_image_dir
+        imgs_dir = self.config.camera_depth_dir
+        masks_dir = self.config.camera_label_dir
+        batch_size = 50
+        augmentations = dict(#featurewise_center=True,
+                            #featurewise_std_normalization=True,
+                            #dtype = datatype
+                            rescale=1. / 255.0,
+                            horizontal_flip = True,
+                            vertical_flip = True)
+        seed = 1
+        image_generator = self.__get_eval_datagen(augmentations, seed, dataset_path, imgs_dir, batch_size)
+        mask_generator = self.__get_eval_datagen(augmentations, seed, dataset_path, masks_dir, batch_size)
+        eval_gen = (pair for pair in zip(image_generator, mask_generator))
+        eval_steps = np.floor(len(os.listdir(os.path.join(dataset_path, imgs_dir))) / batch_size)
+
+        return eval_gen,eval_steps 
+    def __get_eval_datagen(self, augmentations, seed, dataset_dir, class_dir, batch_size):
+        datagen = ImageDataGenerator(**augmentations,)
+        generator = datagen.flow_from_directory(dataset_dir,
+                                                        class_mode=None,
+                                                        classes=[class_dir],
+                                                        color_mode="grayscale",
+                                                        target_size=reversed(self.img_dataset_size), # h, w !
+                                                        seed=seed, batch_size = batch_size)
+        generator.next()
+        return generator
+
+

@@ -1,5 +1,6 @@
 import os
 import numpy as np
+import cv2
 import tensorflow as tf
 import tensorflow.keras.backend as K
 from tensorflow.keras.optimizers import *
@@ -18,6 +19,7 @@ def dice_coef(y_true, y_pred):
 
 def dice_loss(y_true, y_pred):
     return 1 - dice_coef(y_true, y_pred)
+
 
 def load_model(model_path, config):
     if not config.use_gpu:
@@ -45,7 +47,7 @@ class ModelWrapper():
             disable_gpu()
 
     def recompile(self):
-        self.model.compile(loss=dice_loss, optimizer=Adam(learning_rate=self.config.learning_rate), metrics=["binary_crossentropy"]) 
+        self.model.compile(loss=dice_loss, optimizer=Adam(learning_rate=self.config.learning_rate), metrics=["binary_crossentropy",tf.keras.metrics.MeanIoU(num_classes=2)]) 
 
     def save_model_graph_img(self):
         img_name = self.config.version_name+".png"
@@ -89,3 +91,16 @@ class ModelWrapper():
     def save(self, model_path):
         self.model.save(model_path)
         c.msg(f"Model saved to: {model_path}")
+    def evaluate(self,eval_gen,eval_steps):
+        score = self.model.evaluate(eval_gen,steps=eval_steps)
+        c.msg("\nModel loss: " + str(score[0]) + "\nModel BC: " +str(score[1]) + "\nModel IoU: "+str(score[2]))
+    def show(self,gen,a):
+        for i in gen:
+            cv2.imshow("data",i[0][0])
+            cv2.imshow("mask",i[1][0])
+            cv2.waitKey(-1)
+    def show2(self,b,a,gen,c):
+        for i in gen:
+            cv2.imshow("data",i[0][0])
+            cv2.imshow("mask",i[1][0])
+            cv2.waitKey(-1)

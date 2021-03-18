@@ -16,10 +16,10 @@ class VideoImageCatcher:
         pipeline_config.enable_stream(rs.stream.color, self.config.img_camera_size[0], self.config.img_camera_size[1], rs.format.bgr8, self.config.camera_rate)
         
         self.__colorizer = rs.colorizer()
+        self.__colorizer.set_option(rs.option.visual_preset,1)
+        self.__colorizer.set_option(rs.option.min_distance,0.2)
+        self.__colorizer.set_option(rs.option.max_distance,1.05)
         self.__colorizer.set_option(rs.option.color_scheme, 2)
-        self.__colorizer.set_option(rs.option.min_distance,0)
-        self.__colorizer.set_option(rs.option.max_distance,1)
-        self.__colorizer.set_option(rs.option.visual_preset,0)
         self.__colorizer.set_option(rs.option.histogram_equalization_enabled,0)
         self.__filter_HF = rs.hole_filling_filter()
         self.__filter_HF.set_option(rs.option.holes_fill, 3)
@@ -54,17 +54,19 @@ class VideoImageCatcher:
                 frames = self.__pipeline.wait_for_frames() # original frames
                 aligned_frames = self.__align.process(frames) # aligned frames
                 depth_frame = aligned_frames.get_depth_frame()
+                #depth_frame = frames.get_depth_frame()
                 color_frame = aligned_frames.get_color_frame()
                 if not depth_frame or not color_frame: # check correctness of the frames, or skip
-                   return None
+                  return None
 
                 depth_image = np.asanyarray(depth_frame.get_data())
                 color_image = np.asanyarray(color_frame.get_data())
                 filtered = self.__filter_HF.process(depth_frame)
                 filtered = self.__colorizer.colorize(filtered)
                 depth_colorized = np.asanyarray(filtered.get_data())
-                depth_colorized = depth_colorized[:,:,1]
+                depth_colorized = depth_colorized[:,:,0]
                 return depth_image,color_image,depth_colorized
+                #return depth_image,depth_image,depth_colorized
 
             except Exception as ex:
                print('Exception during streaming.. %' % ex)

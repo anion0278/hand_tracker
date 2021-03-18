@@ -2,7 +2,7 @@ from PIL import Image
 import os
 
 current_dir_path = os.path.dirname(os.path.realpath(__file__))
-dataset_dir_path = os.path.join(current_dir_path, os.pardir, "dataset","mask2")
+dataset_dir_path = os.path.join(current_dir_path, os.pardir, "dataset","img")
 
 counter = 0
 imgs = []

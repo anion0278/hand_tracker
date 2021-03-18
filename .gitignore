@@ -246,12 +246,13 @@ ModelManifest.xml
 /out.png
 /out.jpg
 /d_image.png
-/HGR_CNN/dataset
 /HGR_CNN/logs
 /HGR_CNN/__pycache__
 /HGR_CNN/img1_Color_Color.png
 /HGR_CNN/img2_Color.png
 /dataset
+/datasety
 /camera_image
+/sample_images
 /HGR_CNN/models
 /HGR_CNN/testdata

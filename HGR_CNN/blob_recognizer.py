@@ -1,4 +1,5 @@
 import cv2
+import numpy as np
 
 def find_blob(image):
     center = None
@@ -16,7 +17,7 @@ def find_blob(image):
         center = (M["m10"] / M["m00"], M["m01"] / M["m00"])
     return center
 
-def find_hand(imdim,image):
+def find_hand_circle(imdim,image):
     try:
         _, contours, _ = cv2.findContours(image, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
     except KeyboardInterrupt:
@@ -41,3 +42,18 @@ def find_hand(imdim,image):
         pos_y = y - radius
 
     return "{}_{}_{}".format(pos_x,pos_y,2*radius)
+def find_hand(imdim,image):
+    try:
+        _, contours, _ = cv2.findContours(image, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
+    except KeyboardInterrupt:
+        raise KeyboardInterrupt
+    except:
+        contours,_ = cv2.findContours(image.astype("uint8"), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
+    largest_blob = max(contours, key=lambda element: cv2.contourArea(element))
+    #rect = cv2.minAreaRect(largest_blob)
+    #box = cv2.boxPoints(rect)
+    #box = np.int0(box)
+    #cv2.drawContours(image,[box],0,(255,255,255),2)
+    x,y,w,h = cv2.boundingRect(largest_blob)
+    #image = cv2.rectangle(image,(x,y+h-w),(x+w,y+h),(255,255,255),2)
+    return image,x,y+h,w

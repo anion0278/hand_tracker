@@ -23,20 +23,26 @@ predict_command = "predict"
 continue_train = "continue_train"
 camera_command = "camera_prediction"
 simulation_command = "simulation_prediction"
+evaluate_command = "evaluate model"
+tb_command = "tb"
+show_command = "show"
 
-#config = c.Configuration(version_name = "autoencoder", debug_mode=False, latest_model_name="full_hand.h5")
-config = c.Configuration(version_name = "autoencoder", debug_mode=False, latest_model_name="new_model.h5")
+config = c.Configuration(version_name = "autoencoder", debug_mode=False, latest_model_name="prekazky_blured_and_prekazky_34k.h5")
+#config = c.Configuration(version_name = "autoencoder", debug_mode=False, latest_model_name="UR3_fullhand_300k.h5")
 
 
 new_model_path = os.path.join(config.models_dir, "new_model.h5")
 
 if __name__ == "__main__":
+    #sys.argv = [sys.argv[0], tb_command]
     #sys.argv = [sys.argv[0], record_command]
     #sys.argv = [sys.argv[0], train_command] 
-    #sys.argv = [sys.argv[0], continue_train, "latest_checkpoint.h5"] 
-    #sys.argv = [sys.argv[0], predict_command, os.path.join(c.current_dir_path, "testdata", "test2.png")]
+    #sys.argv = [sys.argv[0], continue_train, "hand_only_and_bgr.h5"] 
+    #sys.argv = [sys.argv[0], predict_command, os.path.join(c.current_dir_path, "testdata", "41.png")]
     sys.argv = [sys.argv[0], camera_command]
+    #sys.argv = [sys.argv[0], evaluate_command]
     #sys.argv = [sys.argv[0], simulation_command]
+    #sys.argv = [sys.argv[0], show_command]
     c.msg(sys.argv) 
 
     m.check_gpu()
@@ -104,6 +110,20 @@ if __name__ == "__main__":
         simulation.predict_online()
         sys.exit(0)
 
+    if (sys.argv[1] == evaluate_command):
+        dataset_manager = dm.DatasetManager(config)
+        c.msg("Evaluation of selected model...")
+        model = m.load_model(config.latest_model_path, config)
+        model.evaluate(*dataset_manager.get_eval_datagens())
+        sys.exit(0)
+
+    if (sys.argv[1] == show_command):
+        dataset_manager = dm.DatasetManager(config)
+        c.msg("Showing first batch...")
+        model = m.load_model(config.latest_model_path, config)
+        #model.show(*dataset_manager.get_eval_datagens())
+        model.show2(*dataset_manager.get_autoencoder_datagens())
+        sys.exit(0)
     c.msg("Unrecognized input args. Check spelling.")
 
 #import predictor_facade as p
