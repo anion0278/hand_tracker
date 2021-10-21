@@ -5,7 +5,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>8794f2f6-3cf3-4cc3-a2a7-841c232ac839</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>HGR_CNN.py</StartupFile>
+    <StartupFile>module1.py</StartupFile>
     <SearchPath>
     </SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
@@ -25,6 +25,9 @@
     <Compile Include="blob_recognizer.py" />
     <Compile Include="config.py" />
     <Compile Include="dataset_manager.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="module1.py">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="sim.py" />
