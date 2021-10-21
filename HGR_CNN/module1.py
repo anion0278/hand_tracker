@@ -41,13 +41,18 @@ pipelines = []
 for i in range(len(realsense_ctx.devices)):
     detected_camera = realsense_ctx.devices[i].get_info(rs.camera_info.serial_number)
     connected_devices.append(detected_camera)
-    configs.append(rs.config)
+    configs.append(rs.config())
+    pipelines.append(rs.pipeline())
 
 print(connected_devices)
 
-for config in configs:
-    config.enable_device()
-    config.enable_stream(rs.stream.depth, 424, 240, rs.format.z16, 30)
-    config.enable_stream(rs.stream.color, 424, 240, rs.format.bgr8, 30)
+for i in range(len(configs)):
+    configs[i].enable_device(connected_devices[i])
+    configs[i].enable_stream(rs.stream.depth, 640, 480, rs.format.z16, 30)
+    configs[i].enable_stream(rs.stream.color, 1920, 1080, rs.format.bgr8, 30)
+    pipelines[i].start(configs[i])
+    
 
-#profile = pipeline.start(config)
+
+for pipeline in pipelines:
+    pipeline.stop()
