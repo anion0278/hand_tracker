@@ -5,7 +5,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>8794f2f6-3cf3-4cc3-a2a7-841c232ac839</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>pointclouds_display.py</StartupFile>
+    <StartupFile>mediapipe_demo.py</StartupFile>
     <SearchPath>
     </SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
@@ -27,7 +27,7 @@
     <Compile Include="dataset_manager.py">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="mediapipe.py">
+    <Compile Include="mediapipe_demo.py">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="pointclouds_display.py">

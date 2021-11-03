@@ -14,7 +14,9 @@ class VideoImageCatcher:
 
         pipeline_config.enable_stream(rs.stream.depth, self.config.img_camera_size[0], self.config.img_camera_size[1], rs.format.z16, self.config.camera_rate)
         pipeline_config.enable_stream(rs.stream.color, self.config.img_camera_size[0], self.config.img_camera_size[1], rs.format.bgr8, self.config.camera_rate)
+   
         
+
         self.__colorizer = rs.colorizer()
         self.__colorizer.set_option(rs.option.visual_preset,1)
         self.__colorizer.set_option(rs.option.min_distance,0.2)
@@ -29,11 +31,13 @@ class VideoImageCatcher:
             profile = self.__pipeline.start(pipeline_config)
 
             depth_sensor = profile.get_device().first_depth_sensor()
-            depth_scale = depth_sensor.get_depth_scale()
-            print("Depth Scale is: " , depth_scale)
+            self.depth_scale = depth_sensor.get_depth_scale()
+
+            self.intrinsics = profile.get_stream(rs.stream.depth).as_video_stream_profile().get_intrinsics()
+            print("Depth Scale is: " , self.depth_scale)
 
             clipping_distance_in_meters = 1 #1 meter
-            self.__clipping_distance = clipping_distance_in_meters / depth_scale
+            self.__clipping_distance = clipping_distance_in_meters / self.depth_scale
 
             align_to = rs.stream.color
             self.__align = rs.align(align_to)
@@ -86,6 +90,10 @@ class VideoImageCatcher:
     def get_depth_raw(self):
         di,_,_ = self.__fetch_image()
         return di
+
+    def get_depth_raw_color(self):
+        di,ci,_ = self.__fetch_image()
+        return ci,di
     def get_data(self): #todo
         _,ci,dm = self.__fetch_image()
         return ci,dm
