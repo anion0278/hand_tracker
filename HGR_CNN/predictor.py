@@ -25,13 +25,13 @@ class Predictor:
             self.real_pos = b.find_blob(mask)
             predicted_mask = self.model.predict_single(depth)
 
-            #pos_hand = b.find_hand(self.config.img_dataset_size,predicted_mask)
-            #img_name = self.image_manager.get_iteration_name(self.iteration,pos_hand[2],self.config.camera_depth_path)
-            #self.image_manager.save_image(depth,img_name)
+            pos_hand = b.find_hand(self.config.img_dataset_size,predicted_mask)
+            img_name = self.image_manager.get_iteration_name(self.iteration,pos_hand[2],self.config.camera_depth_path)
+            self.image_manager.save_image(depth,img_name)
 
             
-           # img_name = self.image_manager.get_iteration_name(self.iteration,pos_hand[2],self.config.camera_RGB_path)
-           # self.image_manager.save_image(rgb,img_name)
+            img_name = self.image_manager.get_iteration_name(self.iteration,pos_hand[2],self.config.camera_RGB_path)
+            self.image_manager.save_image(rgb,img_name)
 
             #img_name = self.image_manager.get_iteration_name(self.iteration,pos_hand[2],self.config.camera_predicted_path)
             #self.image_manager.save_image(predicted_mask,img_name)

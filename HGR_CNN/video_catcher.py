@@ -18,7 +18,8 @@ class VideoImageCatcher:
         
 
         self.__colorizer = rs.colorizer()
-        self.__colorizer.set_option(rs.option.visual_preset,1)
+        self.__colorizer.set_option(rs.option.visual_preset,1) #D435
+        #self.__colorizer.set_option(rs.option.visual_preset,3) #L515
         self.__colorizer.set_option(rs.option.min_distance,0.2)
         self.__colorizer.set_option(rs.option.max_distance,1.05)
         self.__colorizer.set_option(rs.option.color_scheme, 2)
