@@ -40,7 +40,7 @@ class VideoImageCatcher:
             clipping_distance_in_meters = 1 #1 meter
             self.__clipping_distance = clipping_distance_in_meters / self.depth_scale
 
-            align_to = rs.stream.color
+            align_to = rs.stream.depth
             self.__align = rs.align(align_to)
             self.__streaming = True
             return True
