@@ -1,6 +1,6 @@
 from segmentation_models import Unet
-from keras.layers import Input, Conv2D
-from keras.models import Model
+from tensorflow.keras.layers import Input, Conv2D
+from tensorflow.keras.models import Model
 import tensorflow as tf
 from tensorflow.keras.optimizers import *
 from tensorflow.keras.callbacks import *
@@ -12,7 +12,6 @@ import config as c
 def create_model(model_path, config):
     if not config.use_gpu:
         disable_gpu()
-
 
     base_model = Unet(backbone_name='resnet34', encoder_weights='imagenet')
 
@@ -81,13 +80,14 @@ class SModelWrapper():
 
         #early_stopping_callback = EarlyStopping(monitor="loss", min_delta=0.01, patience=5, verbose=1, mode="auto")
 
-        history = self.model.fit(train_data_gen, validation_data=val_data_gen, 
+        history = self.model.fit(train_data_gen, 
                                   epochs = self.config.epochs_count, steps_per_epoch = train_steps, validation_steps = val_steps,
                                   max_queue_size=50,                # maximum size for the generator queue
-                                  workers=8,                        # maximum number of processes 
-                                  use_multiprocessing=True,         # use threading (maybe does not work on Win)
+                                  #workers=8,                        # maximum number of processes 
+                                  #use_multiprocessing=True,         # use threading (maybe does not work on Win)
                                   #shuffle=True does not work with generators that do not implement keras.utils.Sequence
-                                  callbacks = [cp_callback, reduce_LR_callback])  
+                                  callbacks = [cp_callback, reduce_LR_callback]
+                                  )  
                                   #callbacks = [tensorboard, cp_callback, reduce_LR_callback])
 
     def recompile(self):
