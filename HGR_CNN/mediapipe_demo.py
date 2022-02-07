@@ -49,11 +49,12 @@ def main():
 
     with mp_hands.Hands(
         model_complexity = 0,
-        max_num_hands = 1,
+        max_num_hands = 2,
         min_detection_confidence = 0.5,
         min_tracking_confidence = 0.5) as hands:
         while True:
             image,depth = cap.get_depth_raw_color()
+            dpt = cap.get_depth_img()
             image.flags.writeable = False
             image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
             results = hands.process(image)
@@ -107,7 +108,7 @@ def main():
                 #u[1] = -a
                 #print(u)
                 v=rs.rs2_transform_point_to_point(extr,u)
-                #v = np.divide(v,1000)
+                #v = np.divide(v,1000) 
                 #print(v)
                 v.append(hand_sign_id)
             
@@ -115,6 +116,7 @@ def main():
                 s.sendto(buf,addr)
         
             cv2.imshow('',image)
+            cv2.imshow('a',dpt)
             if cv2.waitKey(5) & 0xFF == 27:
                 break
     cap.close_stream()

@@ -34,6 +34,9 @@
     <Compile Include="pointclouds_display.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="segmentation_model_wrapper.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="sim.py" />
     <Compile Include="simulation_catcher.py" />
     <Compile Include="sim_const.py" />
@@ -59,6 +62,8 @@
     <InterpreterReference Include="Global|PythonCore|3.6" />
     <InterpreterReference Include="Global|PythonCore|3.7" />
     <InterpreterReference Include="Global|PythonCore|3.8" />
+    <InterpreterReference Include="Global|VisualStudio|Python37" />
+    <InterpreterReference Include="Global|VisualStudio|Python37a" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
