@@ -19,10 +19,12 @@ class Configuration():
         self.batch_size = 32
         self.epochs_count = 8
         self.test_data_ratio = 0.2
-        self.learning_rate = 0.01
+        self.learning_rate = 0.001
         self.img_camera_size = (424, 240)
         self.camera_rate = 30
-        self.img_dataset_size = (448, 256) # ONLY MULTIPLIES OF 32, current values attempt to retain the initial image size as close as possible
+
+        # TODO this value should be the same for every NN, find the optimal one
+        self.img_dataset_size = (320, 256) #(448, 256) # ONLY MULTIPLIES OF 32 (also, there is 8GB GPU limit)
         self.xyz_ranges = [(-700, 700), (-600, 500), (0, 1000)]
         self.record_when_no_hand = False
         self.use_gpu = True

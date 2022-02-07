@@ -1,22 +1,20 @@
 import os
-import cv2
 import sys
-import tensorflow as tf
-import pyrealsense2 as rs
-import numpy as np
 import datatypes
 import image_data_manager as idm
 import dataset_generator as gen
 import tensorboard_starter
 import predictor as p
-import autoencoder_wrapper as m
-import segmentation_model_wrapper as sm
-import autoencoder_unet_model as current_model
-#import autoencoder_simple_model as current_model
+import model_wrapper as m
 import config as c
 import video_catcher as vc
 import simulation_catcher as sc
 import dataset_manager as dm
+
+# ========================== SELECT MODEL HERE ========================== 
+import predefined_seg_model as current_model
+#import autoencoder_unet_model as current_model
+#import autoencoder_simple_model as current_model
 
 record_command = "record"
 train_command = "train"
@@ -27,9 +25,8 @@ simulation_command = "simulation_prediction"
 evaluate_command = "evaluate model"
 tb_command = "tb"
 show_command = "show"
-segmentation_models_command = "sm"
 
-config = c.Configuration(version_name = "autoencoder", debug_mode=False, latest_model_name="CD_270k.h5")
+config = c.Configuration(version_name = "seg_model_unet", debug_mode=False, latest_model_name="CD_270k.h5") # version_name helps with TensorBoard logs!
 #config = c.Configuration(version_name = "autoencoder", debug_mode=False, latest_model_name="UR3_fullhand_300k.h5")
 
 
@@ -38,11 +35,11 @@ new_model_path = os.path.join(config.models_dir, "new_sm_model.h5")
 if __name__ == "__main__":
     #sys.argv = [sys.argv[0], tb_command]
     #sys.argv = [sys.argv[0], record_command]
-    #sys.argv = [sys.argv[0], train_command] 
+    sys.argv = [sys.argv[0], train_command] 
     #sys.argv = [sys.argv[0], continue_train, "hand_only_and_bgr.h5"] 
     #sys.argv = [sys.argv[0], predict_command, os.path.join(c.current_dir_path, "testdata", "41.png")]
     #sys.argv = [sys.argv[0], camera_command]
-    sys.argv = [sys.argv[0], segmentation_models_command]
+    #sys.argv = [sys.argv[0], segmentation_models_command]
     #sys.argv = [sys.argv[0], evaluate_command]
     #sys.argv = [sys.argv[0], simulation_command]
     #sys.argv = [sys.argv[0], show_command]
@@ -67,20 +64,10 @@ if __name__ == "__main__":
         tensorboard_starter.start_and_open()
         sys.exit(0)
 
-    if (sys.argv[1] == train_command):
+    if (sys.argv[1] == train_command): 
         c.msg("Training...")
         dataset_manager = dm.DatasetManager(config)
         model = m.ModelWrapper(current_model.build(config.img_dataset_size), config)
-        model.recompile()
-        model.save_model_graph_img() # possibly visualize
-        model.train(*dataset_manager.get_autoencoder_datagens())
-        model.save(new_model_path)
-        sys.exit(0)
-
-    if (sys.argv[1] == segmentation_models_command):
-        c.msg("Training other architectures...")
-        dataset_manager = dm.DatasetManager(config)
-        model = sm.create_model(new_model_path, config)
         model.recompile()
         model.save_model_graph_img() # possibly visualize
         model.train(*dataset_manager.get_autoencoder_datagens())
@@ -138,54 +125,3 @@ if __name__ == "__main__":
         model.show2(*dataset_manager.get_autoencoder_datagens())
         sys.exit(0)
     c.msg("Unrecognized input args. Check spelling.")
-
-#import predictor_facade as p
-#import simulation_predictor as sp
-#import video_fetcher as vf
-#import simulation_fetcher as sf
-#import visualizer as vis
-#import data_logger as dl
-#import results_evaluator as res
-
-        #if (sys.argv[1] == online_command):
-        #print("Online prediction...")
-        #model_name = os.path.join(models_dir,"autoencoder_model.h5")
-        #predictor = pr.Predictor(model_name)
-        #video_fetcher = vf.VideoImageFetcher(img_camera_size,camera_rate)
-        #video_fetcher.init_stream()
-        #key = 1
-
-        #while key != 27:
-        #    source = image_manager.encode_camera_image(video_fetcher.get_depth_raw())
-        #    predicted = predictor.predict(source)
-        #    visualizer.display_video("predicted",image_manager.decode_predicted(predicted),1)
-        #    visualizer.display_video("source",video_fetcher.get_depth_img(),1)
-        #    visualizer.display_video("camera image",video_fetcher.get_color(),1)
-
-        #video_fetcher.close_stream()
-
-        # if (sys.argv[1] == simulation_command):
-        #print("Simulation prediction...")
-        #model_name = os.path.join(models_dir,"autoencoder_model.h5")
-        #predictor = pr.Predictor(model_name)
-        #logger = dl.DataLogger(os.path.join(current_script_path,"log.txt"))
-        #evaluator = res.ResultsEvaluator()
-        #sim_fetcher = sf.SimulationFetcher()
-        #sim_fetcher.init_stream()
-        #try:
-
-        #    while True:
-        #        source = image_manager.encode_sim_image(sim_fetcher.get_depth_img())
-        #        mask = image_manager.resize_to_dataset(sim_fetcher.get_mask())
-        #        predicted = predictor.predict(source)
-        #        visualizer.display_video("predicted",image_manager.decode_predicted(predicted),1)
-        #        fault = evaluator.compare_two_masks(mask,predicted)
-        #        print(fault)
-        #        logger.log_data(fault)
-        #        visualizer.display_video("camera image",mask,1)
-        #except KeyboardInterrupt:
-        #    print("Program stopped by user")
-        #finally:
-        #    logger.save_data()
-        #    sim_fetcher.close_stream()
-        #    sys.exit(0)
