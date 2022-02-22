@@ -136,6 +136,8 @@ DocProject/Help/html
 # Click-Once directory
 publish/
 
+logs/
+
 # Publish Web Output
 *.[Pp]ublish.xml
 *.azurePubxml
@@ -258,3 +260,15 @@ ModelManifest.xml
 /HGR_CNN/testdata
 /dataset_old
 /HGR_CNN/env
+logs/hands20220222T1050/mask_rcnn_hands_0001.h5
+logs/hands20220222T1050/mask_rcnn_hands_0002.h5
+logs/hands20220222T1050/mask_rcnn_hands_0003.h5
+logs/hands20220222T1050/mask_rcnn_hands_0004.h5
+logs/hands20220222T1050/mask_rcnn_hands_0005.h5
+logs/hands20220222T1050/train/events.out.tfevents.1645523454.LAPTOP-UV8365G7.18528.15551.v2
+logs/hands20220222T1050/train/events.out.tfevents.1645523901.LAPTOP-UV8365G7.18528.24804.v2
+logs/hands20220222T1050/train/events.out.tfevents.1645529513.LAPTOP-UV8365G7.18528.68242.v2
+logs/hands20220222T1050/train/events.out.tfevents.1645530285.LAPTOP-UV8365G7.18528.71296.v2
+logs/hands20220222T1050/validation/events.out.tfevents.1645523598.LAPTOP-UV8365G7.18528.21712.v2
+logs/hands20220222T1050/validation/events.out.tfevents.1645524092.LAPTOP-UV8365G7.18528.42909.v2
+logs/hands20220222T1050/validation/events.out.tfevents.1645530552.LAPTOP-UV8365G7.18528.89421.v2

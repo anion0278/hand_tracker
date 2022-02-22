@@ -28,10 +28,15 @@ class Configuration():
         self.xyz_ranges = [(-700, 700), (-600, 500), (0, 1000)]
         self.record_when_no_hand = False
         self.use_gpu = True
-        self.imgs_dir = "dataset-orig"
-        self.masks_dir = "mask-orig"
-        self.val_imgs_dir = "dataset-test"
-        self.val_masks_dir = "mask-test"
+        #self.imgs_dir = "dataset-orig"
+        #self.masks_dir = "mask-orig"
+        #self.val_imgs_dir = "dataset-test"
+        #self.val_masks_dir = "mask-test"
+
+        self.imgs_dir = "img"
+        self.masks_dir = "mask-arm"
+        self.val_imgs_dir = "img-valid"
+        self.val_masks_dir = "mask-arm-valid"
 
         self.benchmark = False
         self.benchmark_start = (-0.05,0.04,0.738)

@@ -26,17 +26,17 @@ evaluate_command = "evaluate model"
 tb_command = "tb"
 show_command = "show"
 
-config = c.Configuration(version_name = "seg_model_unet", debug_mode=False, latest_model_name="CD_270k.h5") # version_name helps with TensorBoard logs!
+config = c.Configuration(version_name = "seg_model_unet_34k_obst", debug_mode=False, latest_model_name="CD_270k.h5") # version_name helps with TensorBoard logs!
 #config = c.Configuration(version_name = "autoencoder", debug_mode=False, latest_model_name="UR3_fullhand_300k.h5")
 
 
-new_model_path = os.path.join(config.models_dir, "new_sm_model.h5")
+new_model_path = os.path.join(config.models_dir, "sm_unet-4ch.h5")
 
 if __name__ == "__main__":
     #sys.argv = [sys.argv[0], tb_command]
     #sys.argv = [sys.argv[0], record_command]
     sys.argv = [sys.argv[0], train_command] 
-    #sys.argv = [sys.argv[0], continue_train, "hand_only_and_bgr.h5"] 
+    #sys.argv = [sys.argv[0], continue_train, "checkpoints/latest_checkpoint.h5"] 
     #sys.argv = [sys.argv[0], predict_command, os.path.join(c.current_dir_path, "testdata", "41.png")]
     #sys.argv = [sys.argv[0], camera_command]
     #sys.argv = [sys.argv[0], segmentation_models_command]
@@ -78,6 +78,7 @@ if __name__ == "__main__":
         prev_model_name = sys.argv[2]
         dataset_manager = dm.DatasetManager(config)
         c.msg(f"Continue training of {prev_model_name}...")
+        config.learning_rate = config.learning_rate / 5
         model = m.load_model(os.path.join(config.models_dir, prev_model_name), config)
         model.train(*dataset_manager.get_autoencoder_datagens())
         model.save(new_model_path)
