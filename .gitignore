@@ -252,7 +252,7 @@ ModelManifest.xml
 /HGR_CNN/__pycache__
 /HGR_CNN/img1_Color_Color.png
 /HGR_CNN/img2_Color.png
-/dataset
+/datasets
 /datasety
 /camera_image
 /sample_images
@@ -272,3 +272,4 @@ logs/hands20220222T1050/train/events.out.tfevents.1645530285.LAPTOP-UV8365G7.185
 logs/hands20220222T1050/validation/events.out.tfevents.1645523598.LAPTOP-UV8365G7.18528.21712.v2
 logs/hands20220222T1050/validation/events.out.tfevents.1645524092.LAPTOP-UV8365G7.18528.42909.v2
 logs/hands20220222T1050/validation/events.out.tfevents.1645530552.LAPTOP-UV8365G7.18528.89421.v2
+datasets/dataset.zip
