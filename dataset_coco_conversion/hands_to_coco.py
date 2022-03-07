@@ -1,0 +1,120 @@
+#!/usr/bin/env python3
+
+import datetime
+import json
+import os
+import re
+import fnmatch
+from PIL import Image
+import numpy as np
+from pycococreatortools import pycococreatortools
+
+#ROOT_DIR = os.path.abspath('./datasets/hands/train')
+ROOT_DIR = r"C:\Users\Stefan\source\repos\HGR_CNN\datasets\rgbd_joined_dataset\ruka_2"
+IMAGE_DIR = os.path.join(ROOT_DIR, "color")
+ANNOTATION_DIR = os.path.join(ROOT_DIR, "mask2")
+
+INFO = {
+    "description": "Hands Dataset",
+    "url": "https://github.com/anion0278/hand_tracker",
+    "version": "1.0.0",
+    "year": 2022,
+    "contributor": "VSB-TUO Department of Robotics",
+    "date_created": datetime.datetime.utcnow().isoformat(' ')
+}
+
+LICENSES = [
+    {
+        "id": 1,
+        "name": "CC BY 4.0",
+        "url": "https://creativecommons.org/licenses/by/4.0/"
+    }
+]
+
+CATEGORIES = [
+    {
+        'id': 1,
+        'name': 'hand',
+        'supercategory': 'arm-regions',
+    },
+    # {
+    #     'id': 3,
+    #     'name': 'triangle',
+    #     'supercategory': 'shape',
+    # },
+]
+
+def filter_imgs(root, files):
+    file_types = ['*.png']
+    file_types = r'|'.join([fnmatch.translate(x) for x in file_types])
+    files = [os.path.join(root, f) for f in files]
+    files = [f for f in files if re.match(file_types, f)]
+    return files
+
+def filter_for_annotations(root, files, image_filename):
+    file_types = ['*.png']
+    file_types = r'|'.join([fnmatch.translate(x) for x in file_types])
+    basename_no_extension = os.path.splitext(os.path.basename(image_filename))[0]
+    file_name_prefix = basename_no_extension + '.*'
+    files = [os.path.join(root, f) for f in files]
+    files = [f for f in files if re.match(file_types, f)]
+    files = [f for f in files if re.match(file_name_prefix, os.path.splitext(os.path.basename(f))[0])]
+
+    return files
+
+def main():
+
+    coco_output = {
+        "info": INFO,
+        "licenses": LICENSES,
+        "categories": CATEGORIES,
+        "images": [],
+        "annotations": []
+    }
+
+    image_id = 1
+    segmentation_id = 1
+    
+    files = list(os.walk(IMAGE_DIR))
+    for root, _, files in files:
+        image_files = filter_imgs(root, files)
+
+        # go through each image
+        for i, image_filename in enumerate(image_files):
+            print("Processing %s from %s" % (i, len(image_files)))
+            image = Image.open(image_filename)
+            image_info = pycococreatortools.create_image_info(
+                image_id, os.path.basename(image_filename), image.size)
+            coco_output["images"].append(image_info)
+
+            # filter for associated png annotations
+            for root, _, files in os.walk(ANNOTATION_DIR):
+                annotation_files = filter_for_annotations(root, files, image_filename)
+
+                # go through each associated annotation
+                for annotation_filename in annotation_files:
+                    
+                    print(annotation_filename)
+                    class_id = [x['id'] for x in CATEGORIES if x['name'] in annotation_filename][0]
+
+                    category_info = {'id': class_id, 'is_crowd': 'crowd' in image_filename}
+                    binary_mask = np.asarray(Image.open(annotation_filename)
+                        .convert('1')).astype(np.uint8)
+                    
+                    annotation_info = pycococreatortools.create_annotation_info(
+                        segmentation_id, image_id, category_info, binary_mask,
+                        image.size, tolerance=2)
+
+                    if annotation_info is not None:
+                        coco_output["annotations"].append(annotation_info)
+
+                    segmentation_id = segmentation_id + 1
+
+            image_id += 1
+
+    with open('{}/instances_hands_train2022.json'.format(ROOT_DIR), 'w') as output_json_file:
+        json.dump(coco_output, output_json_file)
+
+
+if __name__ == "__main__":
+    main()
