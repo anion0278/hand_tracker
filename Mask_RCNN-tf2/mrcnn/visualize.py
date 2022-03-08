@@ -146,7 +146,7 @@ def display_instances(image, boxes, masks, class_ids, class_names,
         else:
             caption = captions[i]
         ax.text(x1, y1 + 8, caption,
-                color='w', size=11, backgroundcolor="none")
+                color='b', size=11, backgroundcolor="none")
 
         # Mask
         mask = masks[:, :, i]
@@ -171,11 +171,12 @@ def display_instances(image, boxes, masks, class_ids, class_names,
         cv2.waitKey(0)
     else:
         ax.imshow(masked_image.astype(np.uint8))
+    
+    plt.savefig(r"C:\Users\C201_ALES\source\repos\hand_tracker\visualization\\"+title)
 
     if auto_show:
         plt.show()
-
-
+        
 def display_differences(image,
                         gt_box, gt_class_id, gt_mask,
                         pred_box, pred_class_id, pred_score, pred_mask,
