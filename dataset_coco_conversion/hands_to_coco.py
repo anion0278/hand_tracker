@@ -10,8 +10,8 @@ import numpy as np
 from pycococreatortools import pycococreatortools
 
 #ROOT_DIR = os.path.abspath('./datasets/hands/train')
-ROOT_DIR = r"C:\Users\Stefan\source\repos\HGR_CNN\datasets\rgbd_joined_dataset\ruka_2"
-IMAGE_DIR = os.path.join(ROOT_DIR, "color")
+ROOT_DIR = os.path.abspath(r"../datasets/rgbd_joined_dataset/ruka_2")
+IMAGE_DIR = os.path.join(ROOT_DIR, "color/")
 ANNOTATION_DIR = os.path.join(ROOT_DIR, "mask2")
 
 INFO = {
