@@ -35,10 +35,10 @@ new_model_path = os.path.join(config.models_dir, "sm_unet-4ch.h5")
 if __name__ == "__main__":
     #sys.argv = [sys.argv[0], tb_command]
     #sys.argv = [sys.argv[0], record_command]
-    sys.argv = [sys.argv[0], train_command] 
+    #sys.argv = [sys.argv[0], train_command] 
     #sys.argv = [sys.argv[0], continue_train, "checkpoints/latest_checkpoint.h5"] 
     #sys.argv = [sys.argv[0], predict_command, os.path.join(c.current_dir_path, "testdata", "41.png")]
-    #sys.argv = [sys.argv[0], camera_command]
+    sys.argv = [sys.argv[0], camera_command]
     #sys.argv = [sys.argv[0], segmentation_models_command]
     #sys.argv = [sys.argv[0], evaluate_command]
     #sys.argv = [sys.argv[0], simulation_command]

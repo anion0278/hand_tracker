@@ -10,7 +10,7 @@ import numpy as np
 from pycococreatortools import pycococreatortools
 
 #ROOT_DIR = os.path.abspath('./datasets/hands/train')
-ROOT_DIR = os.path.abspath(r"../datasets/rgbd_joined_dataset/ruka_2")
+ROOT_DIR = os.path.abspath(r"C:\dataset\dataset_9x")
 IMAGE_DIR = os.path.join(ROOT_DIR, "color/")
 ANNOTATION_DIR = os.path.join(ROOT_DIR, "mask2")
 
@@ -111,6 +111,9 @@ def main():
                     segmentation_id = segmentation_id + 1
 
             image_id += 1
+            if image_id%100==0:
+                with open('{}/instances_hands_{}.json'.format(ROOT_DIR,image_id), 'w') as output_json_file:
+                    json.dump(coco_output, output_json_file)
 
     with open('{}/instances_hands_train2022.json'.format(ROOT_DIR), 'w') as output_json_file:
         json.dump(coco_output, output_json_file)

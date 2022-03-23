@@ -18,14 +18,13 @@ class VideoImageCatcher:
         
 
         self.__colorizer = rs.colorizer()
-        #self.__colorizer.set_option(rs.option.visual_preset,1) #D435
-        self.__colorizer.set_option(rs.option.visual_preset,3) #L515
-        self.__colorizer.set_option(rs.option.min_distance,0.2)
+        self.__colorizer.set_option(rs.option.visual_preset,1)
+        self.__colorizer.set_option(rs.option.min_distance,0.2)        
         self.__colorizer.set_option(rs.option.max_distance,1.05)
-        self.__colorizer.set_option(rs.option.color_scheme, 2)
+        self.__colorizer.set_option(rs.option.color_scheme,2)
         self.__colorizer.set_option(rs.option.histogram_equalization_enabled,0)
-        self.__filter_HF = rs.hole_filling_filter()
-        self.__filter_HF.set_option(rs.option.holes_fill, 1)
+        #self.__filter_HF = rs.hole_filling_filter()
+        #self.__filter_HF.set_option(rs.option.holes_fill, 3)
 
 
         try:
@@ -33,11 +32,11 @@ class VideoImageCatcher:
 
             depth_sensor = profile.get_device().first_depth_sensor()
             self.depth_scale = depth_sensor.get_depth_scale()
-
+            depth_sensor.set_option(rs.option.visual_preset,5)
+         
             self.intrinsics = profile.get_stream(rs.stream.depth).as_video_stream_profile().get_intrinsics()
-            c_i = profile.get_stream(rs.stream.color).as_video_stream_profile().get_intrinsics() # c_i = [ 424x240  p[208.523 125.334]  f[306.708 306.833]  Inverse Brown Conrady [0 0 0 0 0] ]
-            print("Depth Scale is: " , self.depth_scale) 
-            print(intrinsics)
+            print("Depth Scale is: " , self.depth_scale)
+
             clipping_distance_in_meters = 1 #1 meter
             self.__clipping_distance = clipping_distance_in_meters / self.depth_scale
 
@@ -67,11 +66,19 @@ class VideoImageCatcher:
 
                 depth_image = np.asanyarray(depth_frame.get_data())
                 color_image = np.asanyarray(color_frame.get_data())
-                filtered = self.__filter_HF.process(depth_frame)
-                filtered = self.__colorizer.colorize(filtered)
+                #filtered = self.__filter_HF.process(depth_frame)
+                filtered = self.__colorizer.colorize(depth_frame)
+                #filtered = self.__colorizer.colorize(filtered)
+                rawdepth = np.asanyarray(depth_frame.get_data())
+                min = 0.2
+                max = 1.05
+                colored = np.clip(rawdepth*self.depth_scale,min,max)
+                norm = lambda n: n/max
+                colored = 255-norm(colored)*255
+
                 depth_colorized = np.asanyarray(filtered.get_data())
                 depth_colorized = depth_colorized[:,:,0]
-                return depth_image,color_image,depth_colorized
+                return depth_image,color_image,colored#depth_colorized
                 #return depth_image,depth_image,depth_colorized
 
             except Exception as ex:
