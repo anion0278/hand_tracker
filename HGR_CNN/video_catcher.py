@@ -59,7 +59,7 @@ class VideoImageCatcher:
                 frames = self.__pipeline.wait_for_frames() # original frames
                 aligned_frames = self.__align.process(frames) # aligned frames
                 depth_frame = aligned_frames.get_depth_frame()
-                #depth_frame = frames.get_depth_frame()
+                depth_frame = frames.get_depth_frame()
                 color_frame = aligned_frames.get_color_frame()
                 if not depth_frame or not color_frame: # check correctness of the frames, or skip
                   return None

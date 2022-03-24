@@ -12,7 +12,7 @@ import simulation_catcher as sc
 import dataset_manager as dm
 
 # ========================== SELECT MODEL HERE ========================== 
-import predefined_seg_model as current_model
+#import predefined_seg_model as current_model
 #import autoencoder_unet_model as current_model
 #import autoencoder_simple_model as current_model
 

@@ -275,3 +275,5 @@ logs/hands20220222T1050/validation/events.out.tfevents.1645530552.LAPTOP-UV8365G
 datasets/dataset.zip
 /visualization
 /SOLO
+/dataset_coco_conversion/pycococreatortools/__pycache__/__init__.cpython-36.pyc
+/dataset_coco_conversion/pycococreatortools/__pycache__/pycococreatortools.cpython-36.pyc
