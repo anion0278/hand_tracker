@@ -10,7 +10,7 @@ import numpy as np
 from pycococreatortools import pycococreatortools
 
 #ROOT_DIR = os.path.abspath('./datasets/hands/train')
-ROOT_DIR = os.path.abspath(r"C:\dataset\dataset_9x_matte")
+ROOT_DIR = os.path.abspath(r"C:\Users\Stefan\source\repos\HGR_CNN\datasets\sim_validation_dataset")
 IMAGE_DIR = os.path.join(ROOT_DIR, "color/")
 ANNOTATION_DIR = os.path.join(ROOT_DIR, "mask2")
 
@@ -37,11 +37,6 @@ CATEGORIES = [
         'name': 'hand',
         'supercategory': 'arm-regions',
     },
-    # {
-    #     'id': 3,
-    #     'name': 'triangle',
-    #     'supercategory': 'shape',
-    # },
 ]
 
 def filter_imgs(root, files):
@@ -81,7 +76,7 @@ def main():
 
         # go through each image
         for i, image_filename in enumerate(image_files):
-            print("Processing %s from %s" % (i, len(image_files)))
+            print("Processing %s from %s" % (i+1, len(image_files)))
             image = Image.open(image_filename)
             image_info = pycococreatortools.create_image_info(
                 image_id, os.path.basename(image_filename), image.size)
@@ -91,10 +86,11 @@ def main():
             for root, _, files in os.walk(ANNOTATION_DIR):
                 annotation_files = filter_for_annotations(root, files, image_filename)
 
+                print("Found %s related binary annotations" % len(annotation_files))
                 # go through each associated annotation
                 for annotation_filename in annotation_files:
                     
-                    print(annotation_filename)
+                    print("Processing annotation: %s " % annotation_filename)
                     class_id = [x['id'] for x in CATEGORIES if x['name'] in annotation_filename][0]
 
                     category_info = {'id': class_id, 'is_crowd': 'crowd' in image_filename}
@@ -115,7 +111,7 @@ def main():
                 with open('{}/instances_hands_{}.json'.format(ROOT_DIR,image_id), 'w') as output_json_file:
                     json.dump(coco_output, output_json_file)
 
-    with open('{}/instances_hands_train2022.json'.format(ROOT_DIR), 'w') as output_json_file:
+    with open('{}/instances_hands_full.json'.format(ROOT_DIR), 'w') as output_json_file:
         json.dump(coco_output, output_json_file)
 
 
